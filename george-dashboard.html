@@ -16,7 +16,7 @@
   --amber:#BA7517;--amber-bg:#faeeda;--amber-text:#633806;
   --red:#E24B4A;--red-bg:#fcebeb;--red-text:#791f1f;
   --teal:#1D9E75;--teal-bg:#e1f5ee;--teal-text:#085041;
-  --purple:#7F77DD;--purple-bg:#eeedfe;--purple-text:#3C3489;
+  --purple:#7F77DD;
 }
 @media(prefers-color-scheme:dark){
   :root{
@@ -28,66 +28,62 @@
     --amber-bg:#412402;--amber-text:#fac775;
     --red-bg:#501313;--red-text:#f09595;
     --teal-bg:#04342c;--teal-text:#9fe1cb;
-    --purple-bg:#26215c;--purple-text:#afa9ec;
   }
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-.topbar{background:var(--surface);border-bottom:0.5px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+.topbar{background:var(--surface);border-bottom:0.5px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 .topbar-left{display:flex;align-items:center;gap:12px;}
-.avatar{width:36px;height:36px;border-radius:50%;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--blue-text);}
-.topbar h1{font-size:15px;font-weight:600;}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--blue-text);flex-shrink:0;}
+.topbar-title{font-size:15px;font-weight:600;}
 .topbar-sub{font-size:12px;color:var(--text2);margin-top:1px;}
-.range-btns{display:flex;gap:4px;}
-.range-btn{padding:5px 12px;border:0.5px solid var(--border2);border-radius:6px;background:none;font-size:12px;color:var(--text2);cursor:pointer;font-family:inherit;}
-.range-btn.active{background:var(--text);color:var(--bg);border-color:var(--text);}
-.main{padding:20px 24px;max-width:1100px;}
-.section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:12px;}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px;}
-.stat-card{background:var(--surface2);border-radius:var(--radius);padding:14px 16px;}
-.stat-label{font-size:11px;color:var(--text3);margin-bottom:4px;}
-.stat-value{font-size:22px;font-weight:500;color:var(--text);}
+.topbar-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.tbtn{padding:5px 11px;border:0.5px solid var(--border2);border-radius:6px;background:none;font-size:12px;color:var(--text2);cursor:pointer;font-family:inherit;}
+.tbtn:hover{background:var(--surface2);}
+.tbtn.active{background:var(--text);color:var(--bg);border-color:var(--text);}
+.tbtn-sm{font-size:11px;color:var(--text3);}
+.main{padding:18px 20px;max-width:1100px;}
+.section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:18px;}
+.stat-card{background:var(--surface2);border-radius:var(--radius);padding:12px 14px;}
+.stat-label{font-size:11px;color:var(--text3);margin-bottom:3px;}
+.stat-value{font-size:20px;font-weight:500;color:var(--text);line-height:1.2;}
 .stat-delta{font-size:11px;margin-top:3px;}
 .delta-up{color:var(--green-text);}
 .delta-down{color:var(--red-text);}
-.delta-neutral{color:var(--text3);}
-.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:16px;}
-.card-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
-.card-title span{font-size:11px;color:var(--text3);font-weight:400;}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:14px;}
+.card-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.card-title-note{font-size:11px;color:var(--text3);font-weight:400;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .chart-wrap{position:relative;width:100%;}
-.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px;font-size:12px;color:var(--text2);}
-.legend-dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle;}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px;font-size:12px;color:var(--text2);}
+.ldot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle;}
 .log-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;}
-.log-table th{text-align:left;padding:6px 10px;font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;border-bottom:0.5px solid var(--border);}
-.log-table td{padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text);vertical-align:top;}
+.log-table th{text-align:left;padding:5px 8px;font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;border-bottom:0.5px solid var(--border);}
+.log-table td{padding:7px 8px;border-bottom:0.5px solid var(--border);color:var(--text);vertical-align:top;}
 .log-table tr:last-child td{border-bottom:none;}
 .log-table tr:hover td{background:var(--surface2);}
-.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500;}
+.badge{display:inline-block;padding:2px 6px;border-radius:20px;font-size:10px;font-weight:500;}
 .badge-blue{background:var(--blue-bg);color:var(--blue-text);}
 .badge-green{background:var(--green-bg);color:var(--green-text);}
-.badge-amber{background:var(--amber-bg);color:var(--amber-text);}
 .badge-red{background:var(--red-bg);color:var(--red-text);}
-.compounds-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;}
-.compound-pill{background:var(--surface2);border-radius:var(--radius);padding:10px 14px;font-size:13px;}
-.compound-name{font-weight:500;margin-bottom:2px;}
+.compound-pill{background:var(--surface2);border-radius:var(--radius);padding:9px 12px;font-size:13px;}
+.compound-name{font-weight:500;margin-bottom:1px;}
 .compound-dose{font-size:11px;color:var(--text3);}
-.mood-bar-wrap{display:flex;flex-direction:column;gap:5px;}
-.mood-bar-row{display:flex;align-items:center;gap:8px;font-size:12px;}
-.mood-bar-label{width:28px;color:var(--text3);text-align:right;flex-shrink:0;}
-.mood-bar-bg{flex:1;background:var(--surface2);border-radius:4px;height:16px;overflow:hidden;}
+.compounds-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:7px;}
+.mood-bar-row{display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:5px;}
+.mood-bar-label{width:24px;color:var(--text3);text-align:right;flex-shrink:0;}
+.mood-bar-bg{flex:1;background:var(--surface2);border-radius:4px;height:14px;overflow:hidden;}
 .mood-bar-fill{height:100%;border-radius:4px;}
-.mood-bar-count{width:24px;font-size:11px;color:var(--text2);}
-.no-data{text-align:center;padding:2rem;color:var(--text3);font-size:13px;}
-.notes-list{display:flex;flex-direction:column;gap:8px;}
-.note-row{padding:10px 12px;background:var(--surface2);border-radius:var(--radius);}
-.note-date{font-size:11px;color:var(--text3);margin-bottom:3px;}
-.note-text{font-size:13px;color:var(--text);line-height:1.5;}
-.streak-wrap{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
-.streak-day{width:18px;height:18px;border-radius:3px;font-size:0;}
-.streak-filled{background:var(--blue);}
-.streak-empty{background:var(--surface2);}
-.streak-today{background:var(--blue);outline:2px solid var(--blue-text);}
+.mood-bar-ct{width:22px;font-size:11px;color:var(--text2);}
+.streak-wrap{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.sd{width:17px;height:17px;border-radius:3px;}
+.sd-on{background:var(--blue);}
+.sd-off{background:var(--surface2);}
+.no-data{padding:1.5rem;color:var(--text3);font-size:13px;text-align:center;}
+.notes-list{display:flex;flex-direction:column;gap:7px;}
+.note-row{padding:9px 11px;background:var(--surface2);border-radius:var(--radius);}
+.note-date{font-size:11px;color:var(--text3);margin-bottom:2px;}
+.note-text{font-size:13px;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -96,117 +92,114 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="topbar-left">
     <div class="avatar">JA</div>
     <div>
-      <div class="topbar h1" style="font-size:15px;font-weight:600;">Jason — coach dashboard</div>
+      <div class="topbar-title">Jason — coach dashboard</div>
       <div class="topbar-sub" id="last-updated">Loading...</div>
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;">
-    <button onclick="seedDemoData(true);render();" style="padding:5px 10px;border:0.5px solid var(--border2);border-radius:6px;background:none;font-size:11px;color:var(--text3);cursor:pointer;font-family:inherit;">Load demo data</button>
-    <button onclick="clearAllData();render();" style="padding:5px 10px;border:0.5px solid var(--border2);border-radius:6px;background:none;font-size:11px;color:var(--text3);cursor:pointer;font-family:inherit;">Clear data</button>
-  </div>
-  <div class="range-btns">
-    <button class="range-btn active" onclick="setRange(7,this)">7d</button>
-    <button class="range-btn" onclick="setRange(14,this)">14d</button>
-    <button class="range-btn" onclick="setRange(28,this)">28d</button>
-    <button class="range-btn" onclick="setRange(999,this)">All</button>
+  <div class="topbar-right">
+    <button class="tbtn tbtn-sm" onclick="loadDemoData()">Load demo data</button>
+    <button class="tbtn tbtn-sm" onclick="clearData()">Clear data</button>
+    <button class="tbtn active" id="btn7" onclick="setRange(7,'btn7')">7d</button>
+    <button class="tbtn" id="btn14" onclick="setRange(14,'btn14')">14d</button>
+    <button class="tbtn" id="btn28" onclick="setRange(28,'btn28')">28d</button>
+    <button class="tbtn" id="btnall" onclick="setRange(9999,'btnall')">All</button>
   </div>
 </div>
 
 <div class="main">
-
   <div class="section-label" style="margin-top:4px;">Overview</div>
   <div class="stats-grid" id="stats-grid"></div>
 
   <div class="two-col">
     <div class="card">
-      <div class="card-title">Weight <span>kg</span></div>
-      <div class="chart-wrap" style="height:180px;"><canvas id="chart-weight" role="img" aria-label="Weight trend over time"></canvas></div>
+      <div class="card-title">Weight <span class="card-title-note">kg</span></div>
+      <div class="chart-wrap" style="height:170px;"><canvas id="c-weight"></canvas></div>
     </div>
     <div class="card">
       <div class="card-title">Daily steps</div>
-      <div class="chart-wrap" style="height:180px;"><canvas id="chart-steps" role="img" aria-label="Daily steps over time"></canvas></div>
+      <div class="chart-wrap" style="height:170px;"><canvas id="c-steps"></canvas></div>
     </div>
   </div>
 
-  <div class="two-col" style="margin-top:16px;">
+  <div class="two-col" style="margin-top:14px;">
     <div class="card">
-      <div class="card-title">Calories <span>kcal/day</span></div>
-      <div class="legend" id="legend-cals"></div>
-      <div class="chart-wrap" style="height:160px;"><canvas id="chart-cals" role="img" aria-label="Daily calorie intake"></canvas></div>
+      <div class="card-title">Calories <span class="card-title-note">kcal/day</span></div>
+      <div class="chart-wrap" style="height:150px;"><canvas id="c-cals"></canvas></div>
     </div>
     <div class="card">
-      <div class="card-title">Macros <span>avg g/day</span></div>
-      <div class="chart-wrap" style="height:180px;"><canvas id="chart-macros" role="img" aria-label="Average macro breakdown"></canvas></div>
+      <div class="card-title">Macros <span class="card-title-note">avg g/day</span></div>
+      <div class="chart-wrap" style="height:170px;"><canvas id="c-macros"></canvas></div>
     </div>
   </div>
 
-  <div class="two-col" style="margin-top:16px;">
+  <div class="two-col" style="margin-top:14px;">
     <div class="card">
-      <div class="card-title">Blood pressure <span>mmHg</span></div>
-      <div class="legend" id="legend-bp"></div>
-      <div class="chart-wrap" style="height:160px;"><canvas id="chart-bp" role="img" aria-label="Blood pressure systolic and diastolic over time"></canvas></div>
+      <div class="card-title">Blood pressure <span class="card-title-note">mmHg</span></div>
+      <div class="legend" id="leg-bp"></div>
+      <div class="chart-wrap" style="height:140px;"><canvas id="c-bp"></canvas></div>
     </div>
     <div class="card">
       <div class="card-title">Heart rate &amp; sleep</div>
-      <div class="legend" id="legend-health"></div>
-      <div class="chart-wrap" style="height:160px;"><canvas id="chart-health" role="img" aria-label="Resting heart rate and sleep hours"></canvas></div>
+      <div class="legend" id="leg-health"></div>
+      <div class="chart-wrap" style="height:140px;"><canvas id="c-health"></canvas></div>
     </div>
   </div>
 
-  <div class="two-col" style="margin-top:16px;">
+  <div class="two-col" style="margin-top:14px;">
+    <div class="card">
+      <div class="card-title">Fasted glucose <span class="card-title-note">mmol/L</span></div>
+      <div class="chart-wrap" style="height:130px;"><canvas id="c-glucose"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Water intake <span class="card-title-note">litres/day</span></div>
+      <div class="chart-wrap" style="height:130px;"><canvas id="c-water"></canvas></div>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-top:14px;">
     <div class="card">
       <div class="card-title">Mood distribution</div>
       <div id="mood-bars"></div>
     </div>
     <div class="card">
-      <div class="card-title">Check-in streak <span id="streak-count"></span></div>
+      <div class="card-title">Check-in streak <span class="card-title-note" id="streak-label"></span></div>
       <div class="streak-wrap" id="streak-grid"></div>
     </div>
   </div>
 
-  <div class="card" style="margin-top:16px;">
+  <div class="card" style="margin-top:14px;">
     <div class="card-title">Active compounds &amp; peptides</div>
     <div id="compounds-display"></div>
   </div>
 
-  <div class="two-col" style="margin-top:16px;">
-    <div class="card">
-      <div class="card-title">Fasted glucose <span>mmol/L — weekly</span></div>
-      <div class="chart-wrap" style="height:150px;"><canvas id="chart-glucose" role="img" aria-label="Fasted glucose readings over time"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Water intake <span>litres/day</span></div>
-      <div class="chart-wrap" style="height:150px;"><canvas id="chart-water" role="img" aria-label="Daily water intake"></canvas></div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:16px;">
+  <div class="card" style="margin-top:14px;">
     <div class="card-title">Recent notes from Jason</div>
     <div id="notes-list"></div>
   </div>
 
-  <div class="card" style="margin-top:16px;">
+  <div class="card" style="margin-top:14px;">
     <div class="card-title">Full log</div>
     <div style="overflow-x:auto;">
-      <table class="log-table" id="log-table">
+      <table class="log-table">
         <thead><tr>
-          <th style="width:70px;">Date</th>
-          <th style="width:60px;">Weight</th>
-          <th style="width:65px;">Cals</th>
-          <th style="width:55px;">Protein</th>
-          <th style="width:55px;">Steps</th>
-          <th style="width:70px;">BP</th>
-          <th style="width:50px;">HR</th>
-          <th style="width:50px;">Sleep</th>
-          <th style="width:55px;">Mood</th>
-          <th style="width:80px;">Training</th>
+          <th style="width:64px">Date</th>
+          <th style="width:58px">Weight</th>
+          <th style="width:60px">Cals</th>
+          <th style="width:52px">Pro</th>
+          <th style="width:52px">Carbs</th>
+          <th style="width:44px">Fat</th>
+          <th style="width:60px">Steps</th>
+          <th style="width:66px">BP</th>
+          <th style="width:46px">HR</th>
+          <th style="width:46px">Sleep</th>
+          <th style="width:48px">Mood</th>
+          <th style="width:80px">Training</th>
           <th>Notes</th>
         </tr></thead>
         <tbody id="log-tbody"></tbody>
       </table>
     </div>
   </div>
-
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -216,38 +209,67 @@ var charts = {};
 
 function pad(n){return n<10?'0'+n:n;}
 function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
-function formatDateShort(str){var d=new Date(str+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+m[d.getMonth()];}
-function getStorage(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
-function setStorage(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
-function avg(arr){var f=arr.filter(function(x){return x!=null&&!isNaN(x);});return f.length?f.reduce(function(a,b){return a+b;},0)/f.length:null;}
-function isDark(){return window.matchMedia('(prefers-color-scheme:dark)').matches;}
+function fmtDate(s){var d=new Date(s+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+m[d.getMonth()];}
+function gS(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
+function sS(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function avg(arr){var f=arr.filter(function(x){return x!=null&&!isNaN(x)&&x!==0;});return f.length?f.reduce(function(a,b){return a+b;},0)/f.length:null;}
+function tc(){return window.matchMedia('(prefers-color-scheme:dark)').matches?'#a0a09c':'#6b6b67';}
+function gc(){return window.matchMedia('(prefers-color-scheme:dark)').matches?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)';}
 
-function clearAllData(){
-  var idx=getStorage('checkin_index')||[];
-  idx.forEach(function(ds){ localStorage.removeItem('checkin:'+ds); });
-  localStorage.removeItem('checkin_index');
+function xAxis(){return {ticks:{color:tc(),font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:8},grid:{color:gc()},border:{display:false}};}
+function yAxis(cb){var o={ticks:{color:tc(),font:{size:10}},grid:{color:gc()},border:{display:false}};if(cb)o.ticks.callback=cb;return o;}
+function noLegend(){return {legend:{display:false}};}
+
+function mkChart(id,cfg){
+  if(charts[id]){charts[id].destroy();delete charts[id];}
+  var el=document.getElementById(id);
+  if(!el)return;
+  try{charts[id]=new Chart(el,cfg);}catch(e){console.error('Chart error on '+id,e);}
 }
 
-function seedDemoData(force){
-  var idx=getStorage('checkin_index')||[];
-  var hasReal=idx.some(function(ds){ var e=getStorage('checkin:'+ds); return e&&!e.__demo; });
-  if(hasReal&&!force) return;
-  if(force){ clearAllData(); }
+function noData(id,msg){
+  var el=document.getElementById(id);
+  if(el)el.parentElement.innerHTML='<div class="no-data">'+(msg||'No data')+'</div>';
+}
+
+function loadLogs(range){
+  var idx=gS('checkin_index')||[];
+  var logs=[];
+  var cutoff='';
+  if(range<9000){var c=new Date();c.setDate(c.getDate()-(range-1));cutoff=c.getFullYear()+'-'+pad(c.getMonth()+1)+'-'+pad(c.getDate());}
+  idx.forEach(function(ds){
+    if(cutoff&&ds<cutoff)return;
+    var e=gS('checkin:'+ds);
+    if(e)logs.push(e);
+  });
+  logs.sort(function(a,b){return a.date.localeCompare(b.date);});
+  return logs;
+}
+
+function clearData(){
+  var idx=gS('checkin_index')||[];
+  idx.forEach(function(ds){localStorage.removeItem('checkin:'+ds);});
+  localStorage.removeItem('checkin_index');
+  render();
+}
+
+function loadDemoData(){
+  clearData();
   var today=new Date();
   var newIdx=[];
-  var baseWeight=88.5;
+  var w=88.5;
   for(var i=27;i>=0;i--){
-    var d=new Date(today); d.setDate(d.getDate()-i);
+    if(Math.random()<0.12)continue;
+    var d=new Date(today);d.setDate(d.getDate()-i);
     var ds=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
-    if(Math.random()<0.15) continue;
-    baseWeight+=(Math.random()-0.52)*0.25;
+    w+=(Math.random()-0.52)*0.25;
     var entry={
-      date:ds,ts:Date.now(),
-      weight:Math.round(baseWeight*10)/10,
+      date:ds,ts:Date.now(),__demo:true,
+      weight:Math.round(w*10)/10,
       hr:Math.round(58+Math.random()*12),
       sleep:Math.round((6.5+Math.random()*2)*2)/2,
       bps:i%3===0?Math.round(118+Math.random()*18):null,
-      bpd:i%3===0?Math.round(74+Math.random()*12):null,
+      bpd:i%3===0?Math.round(74+Math.random()*10):null,
       glucose:i%7===0?Math.round((4.8+Math.random()*0.8)*10)/10:null,
       cals:Math.round(2200+Math.random()*600),
       water:Math.round((2.5+Math.random()*1.5)*2)/2,
@@ -257,313 +279,270 @@ function seedDemoData(force){
       steps:Math.round(6000+Math.random()*7000),
       training:['Upper body','Lower body','Push','Pull','Legs','','Cardio',''][Math.floor(Math.random()*8)],
       mood:Math.floor(3+Math.random()*3),
-      notes:i%5===0?['Felt strong today, energy was high all session.','Joints a bit stiff, sleep was poor last night.','Great session, pumps were excellent.','Feeling a bit flat, hunger lower than usual.','Solid day, hit all targets.'][Math.floor(Math.random()*5)]:'',
-      __demo:true,
-      __demo:true,
+      notes:i%5===0?['Felt strong today, energy was high.','Joints a bit stiff, poor sleep last night.','Great session, pumps were excellent.','Feeling flat, hunger lower than usual.','Solid day, hit all targets.'][Math.floor(Math.random()*5)]:'',
       anabolics:[{name:'Testosterone Enanthate',dose:'250'}],
       peptides:i%3===0?[{name:'BPC-157',dose:'0.25'}]:[]
     };
-    setStorage('checkin:'+ds,entry);
+    sS('checkin:'+ds,entry);
     newIdx.push(ds);
   }
   newIdx.sort(function(a,b){return b.localeCompare(a);});
-  setStorage('checkin_index',newIdx);
-}
-
-function loadLogs(range){
-  var idx=getStorage('checkin_index')||[];
-  var today=todayStr();
-  var cutoff=new Date(); cutoff.setDate(cutoff.getDate()-(range-1));
-  var cutoffStr=cutoff.getFullYear()+'-'+pad(cutoff.getMonth()+1)+'-'+pad(cutoff.getDate());
-  var logs=[];
-  idx.forEach(function(ds){
-    if(range<900&&ds<cutoffStr) return;
-    var e=getStorage('checkin:'+ds);
-    if(e) logs.push(e);
-  });
-  logs.sort(function(a,b){return a.date.localeCompare(b.date);});
-  return logs;
-}
-
-function setRange(r,btn){
-  currentRange=r;
-  document.querySelectorAll('.range-btn').forEach(function(b){b.classList.remove('active');});
-  btn.classList.add('active');
+  sS('checkin_index',newIdx);
   render();
 }
 
-function textColor(){return isDark()?'#a0a09c':'#6b6b67';}
-function gridColor(){return isDark()?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)';}
-
-function baseChartOpts(yLabel){
-  return{
-    responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{callbacks:{}}},
-    scales:{
-      x:{ticks:{color:textColor(),font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:8},grid:{color:gridColor()},border:{display:false}},
-      y:{ticks:{color:textColor(),font:{size:10}},grid:{color:gridColor()},border:{display:false},title:yLabel?{display:false}:undefined}
-    }
-  };
-}
-
-function makeChart(id,type,data,opts){
-  if(charts[id]){charts[id].destroy();}
-  var ctx=document.getElementById(id);
-  if(!ctx) return;
-  charts[id]=new Chart(ctx,{type:type,data:data,options:opts});
+function setRange(r,btnId){
+  currentRange=r;
+  ['btn7','btn14','btn28','btnall'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el)el.classList.toggle('active',id===btnId);
+  });
+  render();
 }
 
 function render(){
-  var logs=loadLogs(currentRange);
-  var allLogs=loadLogs(999);
+  try{
+    var logs=loadLogs(currentRange);
+    var all=loadLogs(9999);
 
-  if(allLogs.length>0){
-    var last=allLogs[allLogs.length-1];
-    var d=new Date(last.date+'T00:00:00');
-    document.getElementById('last-updated').textContent='Last check-in: '+d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
-  } else {
-    document.getElementById('last-updated').textContent='No entries yet';
+    if(all.length>0){
+      var last=all[all.length-1];
+      var ld=new Date(last.date+'T00:00:00');
+      document.getElementById('last-updated').textContent='Last check-in: '+ld.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+    } else {
+      document.getElementById('last-updated').textContent='No entries yet — click "Load demo data" to preview';
+    }
+
+    renderStats(logs);
+    renderWeight(logs);
+    renderSteps(logs);
+    renderCals(logs);
+    renderMacros(logs);
+    renderBP(logs);
+    renderHealth(logs);
+    renderGlucose(all);
+    renderWater(logs);
+    renderMood(logs);
+    renderStreak(all);
+    renderCompounds(all);
+    renderNotes(all);
+    renderTable(logs);
+  } catch(e){
+    console.error('Render error:',e);
+    document.getElementById('last-updated').textContent='Error loading data — check console';
   }
-
-  renderStats(logs,allLogs);
-  renderWeightChart(logs);
-  renderStepsChart(logs);
-  renderCalsChart(logs);
-  renderMacrosChart(logs);
-  renderBPChart(logs);
-  renderHealthChart(logs);
-  renderMoodBars(logs);
-  renderStreak(allLogs);
-  renderCompounds(allLogs);
-  renderGlucoseChart(allLogs);
-  renderWaterChart(logs);
-  renderNotes(allLogs);
-  renderLogTable(logs);
 }
 
-function renderStats(logs,allLogs){
-  if(!logs.length){document.getElementById('stats-grid').innerHTML='<div class="no-data">No data in this range</div>';return;}
-  var weights=logs.filter(function(l){return l.weight;}).map(function(l){return l.weight;});
-  var latestW=weights.length?weights[weights.length-1]:null;
-  var firstW=weights.length?weights[0]:null;
-  var wChange=latestW&&firstW?(latestW-firstW):null;
-  var avgCals=avg(logs.map(function(l){return l.cals;}));
-  var avgSteps=avg(logs.map(function(l){return l.steps;}));
-  var avgSleep=avg(logs.map(function(l){return l.sleep;}));
-  var bpEntries=logs.filter(function(l){return l.bps&&l.bpd;});
-  var latestBP=bpEntries.length?bpEntries[bpEntries.length-1]:null;
-  var compliance=logs.length;
-  var expected=Math.min(currentRange<900?currentRange:allLogs.length,currentRange);
-
-  function delta(val,unit,lowerBetter){
-    if(val===null) return '';
-    var cls=val===0?'delta-neutral':(lowerBetter?(val<0?'delta-up':'delta-down'):(val>0?'delta-up':'delta-down'));
-    return '<div class="stat-delta '+cls+'">'+(val>0?'+':'')+val.toFixed(1)+' '+unit+'</div>';
+function renderStats(logs){
+  var el=document.getElementById('stats-grid');
+  if(!logs.length){el.innerHTML='<div class="no-data" style="grid-column:1/-1">No data in this range — try a wider range or load demo data</div>';return;}
+  var ws=logs.filter(function(l){return l.weight;}).map(function(l){return l.weight;});
+  var lw=ws.length?ws[ws.length-1]:null;
+  var fw=ws.length?ws[0]:null;
+  var wdelta=lw&&fw&&ws.length>1?lw-fw:null;
+  var ac=avg(logs.map(function(l){return l.cals;}));
+  var as=avg(logs.map(function(l){return l.steps;}));
+  var asl=avg(logs.map(function(l){return l.sleep;}));
+  var bpe=logs.filter(function(l){return l.bps&&l.bpd;});
+  var lbp=bpe.length?bpe[bpe.length-1]:null;
+  function dHtml(v,unit,lowerBetter){
+    if(v===null||v===undefined)return '';
+    var cls=v===0?'':'delta-'+(lowerBetter?(v<0?'up':'down'):(v>0?'up':'down'));
+    return '<div class="stat-delta '+cls+'">'+(v>0?'+':'')+v.toFixed(1)+' '+unit+'</div>';
   }
-
   var cards=[
-    {label:'Current weight',value:latestW?latestW.toFixed(1)+' kg':'—',extra:wChange!==null?delta(wChange,'kg',true):''},
-    {label:'Avg calories',value:avgCals?Math.round(avgCals).toLocaleString()+' kcal':'—',extra:''},
-    {label:'Avg steps',value:avgSteps?Math.round(avgSteps).toLocaleString():'—',extra:''},
-    {label:'Avg sleep',value:avgSleep?avgSleep.toFixed(1)+' h':'—',extra:''},
-    {label:'Latest BP',value:latestBP?latestBP.bps+'/'+latestBP.bpd:'—',extra:''},
-    {label:'Check-ins',value:compliance+' entries',extra:''},
+    {l:'Current weight',v:lw?lw.toFixed(1)+' kg':'—',x:dHtml(wdelta,'kg',true)},
+    {l:'Avg calories',v:ac?Math.round(ac).toLocaleString()+' kcal':'—',x:''},
+    {l:'Avg steps',v:as?Math.round(as).toLocaleString():'—',x:''},
+    {l:'Avg sleep',v:asl?asl.toFixed(1)+' h':'—',x:''},
+    {l:'Latest BP',v:lbp?lbp.bps+'/'+lbp.bpd+' mmHg':'—',x:''},
+    {l:'Check-ins',v:logs.length+' logged',x:''},
   ];
-  document.getElementById('stats-grid').innerHTML=cards.map(function(c){
-    return '<div class="stat-card"><div class="stat-label">'+c.label+'</div><div class="stat-value">'+c.value+'</div>'+c.extra+'</div>';
-  }).join('');
+  el.innerHTML=cards.map(function(c){return '<div class="stat-card"><div class="stat-label">'+c.l+'</div><div class="stat-value">'+c.v+'</div>'+c.x+'</div>';}).join('');
 }
 
-function renderWeightChart(logs){
+function renderWeight(logs){
   var pts=logs.filter(function(l){return l.weight;});
-  if(!pts.length){document.getElementById('chart-weight').parentElement.innerHTML='<div class="no-data">No weight data</div>';return;}
-  var labels=pts.map(function(l){return formatDateShort(l.date);});
-  var data=pts.map(function(l){return l.weight;});
-  makeChart('chart-weight','line',{
-    labels:labels,
-    datasets:[{label:'Weight',data:data,borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.08)',tension:0.3,pointRadius:3,pointBackgroundColor:'#378ADD',fill:true,borderWidth:2}]
-  },{...baseChartOpts(),plugins:{legend:{display:false}},scales:{x:{...baseChartOpts().scales.x},y:{...baseChartOpts().scales.y,ticks:{...baseChartOpts().scales.y.ticks,callback:function(v){return v+' kg';}}}}});
+  if(!pts.length){noData('c-weight','No weight logged');return;}
+  mkChart('c-weight',{type:'line',data:{
+    labels:pts.map(function(l){return fmtDate(l.date);}),
+    datasets:[{label:'Weight',data:pts.map(function(l){return l.weight;}),borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.07)',tension:0.35,pointRadius:3,pointBackgroundColor:'#378ADD',fill:true,borderWidth:2}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis(function(v){return v+' kg';})}}});
 }
 
-function renderStepsChart(logs){
+function renderSteps(logs){
   var pts=logs.filter(function(l){return l.steps;});
-  if(!pts.length){document.getElementById('chart-steps').parentElement.innerHTML='<div class="no-data">No steps data</div>';return;}
-  var labels=pts.map(function(l){return formatDateShort(l.date);});
-  var data=pts.map(function(l){return l.steps;});
-  var colors=data.map(function(v){return v>=10000?'#639922':'#378ADD';});
-  makeChart('chart-steps','bar',{
-    labels:labels,
-    datasets:[{label:'Steps',data:data,backgroundColor:colors,borderRadius:3,borderSkipped:false}]
-  },{...baseChartOpts(),plugins:{legend:{display:false}},scales:{x:{...baseChartOpts().scales.x},y:{...baseChartOpts().scales.y,ticks:{...baseChartOpts().scales.y.ticks,callback:function(v){return v>=1000?(v/1000).toFixed(0)+'k':v;}}}}});
+  if(!pts.length){noData('c-steps','No steps logged');return;}
+  mkChart('c-steps',{type:'bar',data:{
+    labels:pts.map(function(l){return fmtDate(l.date);}),
+    datasets:[{label:'Steps',data:pts.map(function(l){return l.steps;}),backgroundColor:pts.map(function(l){return l.steps>=10000?'#639922':'#378ADD';}),borderRadius:3,borderSkipped:false}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis(function(v){return v>=1000?Math.round(v/1000)+'k':v;})}}});
 }
 
-function renderCalsChart(logs){
+function renderCals(logs){
   var pts=logs.filter(function(l){return l.cals;});
-  document.getElementById('legend-cals').innerHTML='<span><span class="legend-dot" style="background:#378ADD"></span>Calories</span>';
-  if(!pts.length){document.getElementById('chart-cals').parentElement.innerHTML='<div class="no-data">No calorie data</div>';return;}
-  makeChart('chart-cals','bar',{
-    labels:pts.map(function(l){return formatDateShort(l.date);}),
+  if(!pts.length){noData('c-cals','No calories logged');return;}
+  mkChart('c-cals',{type:'bar',data:{
+    labels:pts.map(function(l){return fmtDate(l.date);}),
     datasets:[{label:'Calories',data:pts.map(function(l){return l.cals;}),backgroundColor:'rgba(55,138,221,0.7)',borderRadius:3,borderSkipped:false}]
-  },baseChartOpts());
+  },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis()}}});
 }
 
-function renderMacrosChart(logs){
+function renderMacros(logs){
   var p=avg(logs.map(function(l){return l.protein;}));
   var c=avg(logs.map(function(l){return l.carbs;}));
   var f=avg(logs.map(function(l){return l.fats;}));
-  if(!p&&!c&&!f){document.getElementById('chart-macros').parentElement.innerHTML='<div class="no-data">No macro data</div>';return;}
-  makeChart('chart-macros','doughnut',{
+  if(!p&&!c&&!f){noData('c-macros','No macro data');return;}
+  mkChart('c-macros',{type:'doughnut',data:{
     labels:['Protein','Carbs','Fats'],
-    datasets:[{data:[Math.round(p)||0,Math.round(c)||0,Math.round(f)||0],backgroundColor:['#378ADD','#1D9E75','#BA7517'],borderWidth:0,hoverOffset:4}]
-  },{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:true,position:'bottom',labels:{color:textColor(),font:{size:11},padding:12,boxWidth:10,boxHeight:10}},tooltip:{callbacks:{label:function(ctx){return ctx.label+': '+ctx.parsed+'g';}}}}}});
+    datasets:[{data:[Math.round(p||0),Math.round(c||0),Math.round(f||0)],backgroundColor:['#378ADD','#1D9E75','#BA7517'],borderWidth:0,hoverOffset:4}]
+  },options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:true,position:'bottom',labels:{color:tc(),font:{size:11},padding:10,boxWidth:10,boxHeight:10}},tooltip:{callbacks:{label:function(ctx){return ctx.label+': '+ctx.parsed+'g';}}}}}});
 }
 
-function renderBPChart(logs){
+function renderBP(logs){
   var pts=logs.filter(function(l){return l.bps&&l.bpd;});
-  document.getElementById('legend-bp').innerHTML='<span><span class="legend-dot" style="background:#E24B4A"></span>Systolic</span><span><span class="legend-dot" style="background:#BA7517"></span>Diastolic</span>';
-  if(!pts.length){document.getElementById('chart-bp').parentElement.innerHTML='<div class="no-data">No BP data</div>';return;}
-  makeChart('chart-bp','line',{
-    labels:pts.map(function(l){return formatDateShort(l.date);}),
+  document.getElementById('leg-bp').innerHTML='<span><span class="ldot" style="background:#E24B4A"></span>Systolic</span><span><span class="ldot" style="background:#BA7517;"></span>Diastolic</span>';
+  if(!pts.length){noData('c-bp','No BP data — optional field');return;}
+  mkChart('c-bp',{type:'line',data:{
+    labels:pts.map(function(l){return fmtDate(l.date);}),
     datasets:[
-      {label:'Systolic',data:pts.map(function(l){return l.bps;}),borderColor:'#E24B4A',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2,borderDash:[]},
+      {label:'Systolic',data:pts.map(function(l){return l.bps;}),borderColor:'#E24B4A',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2},
       {label:'Diastolic',data:pts.map(function(l){return l.bpd;}),borderColor:'#BA7517',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2,borderDash:[4,3]}
     ]
-  },baseChartOpts());
+  },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis()}}});
 }
 
-function renderHealthChart(logs){
-  var hrPts=logs.filter(function(l){return l.hr;});
-  var slPts=logs.filter(function(l){return l.sleep;});
-  document.getElementById('legend-health').innerHTML='<span><span class="legend-dot" style="background:#7F77DD"></span>Heart rate (bpm)</span><span><span class="legend-dot" style="background:#1D9E75"></span>Sleep (h)</span>';
-  if(!hrPts.length&&!slPts.length){document.getElementById('chart-health').parentElement.innerHTML='<div class="no-data">No data</div>';return;}
-  var allDates=[...new Set([...hrPts,...slPts].map(function(l){return l.date;}))].sort();
-  var labels=allDates.map(formatDateShort);
-  var hrMap={},slMap={};
-  hrPts.forEach(function(l){hrMap[l.date]=l.hr;});
-  slPts.forEach(function(l){slMap[l.date]=l.sleep;});
-  makeChart('chart-health','line',{
-    labels:labels,
+function renderHealth(logs){
+  var hp=logs.filter(function(l){return l.hr;});
+  var sp=logs.filter(function(l){return l.sleep;});
+  document.getElementById('leg-health').innerHTML='<span><span class="ldot" style="background:#7F77DD"></span>Heart rate (bpm)</span><span><span class="ldot" style="background:#1D9E75"></span>Sleep (h)</span>';
+  if(!hp.length&&!sp.length){noData('c-health','No HR/sleep data');return;}
+  var dates={};
+  hp.forEach(function(l){dates[l.date]=dates[l.date]||{};dates[l.date].hr=l.hr;});
+  sp.forEach(function(l){dates[l.date]=dates[l.date]||{};dates[l.date].sleep=l.sleep;});
+  var keys=Object.keys(dates).sort();
+  mkChart('c-health',{type:'line',data:{
+    labels:keys.map(fmtDate),
     datasets:[
-      {label:'Heart rate',data:allDates.map(function(d){return hrMap[d]||null;}),borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2,yAxisID:'y',spanGaps:true},
-      {label:'Sleep',data:allDates.map(function(d){return slMap[d]||null;}),borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2,yAxisID:'y2',borderDash:[4,3],spanGaps:true}
+      {label:'HR',data:keys.map(function(k){return dates[k].hr||null;}),borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2,yAxisID:'yL',spanGaps:true},
+      {label:'Sleep',data:keys.map(function(k){return dates[k].sleep||null;}),borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2,yAxisID:'yR',borderDash:[4,3],spanGaps:true}
     ]
-  },{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
-    x:{ticks:{color:textColor(),font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:8},grid:{color:gridColor()},border:{display:false}},
-    y:{ticks:{color:textColor(),font:{size:10},callback:function(v){return v+' bpm';}},grid:{color:gridColor()},border:{display:false},position:'left'},
-    y2:{ticks:{color:textColor(),font:{size:10},callback:function(v){return v+'h';}},grid:{display:false},border:{display:false},position:'right'}
-  }});
+  },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{
+    x:xAxis(),
+    yL:{ticks:{color:tc(),font:{size:10},callback:function(v){return v+' bpm';}},grid:{color:gc()},border:{display:false},position:'left'},
+    yR:{ticks:{color:tc(),font:{size:10},callback:function(v){return v+'h';}},grid:{display:false},border:{display:false},position:'right'}
+  }}});
 }
 
-function renderMoodBars(logs){
+function renderGlucose(all){
+  var pts=all.filter(function(l){return l.glucose;});
+  if(!pts.length){noData('c-glucose','No glucose data yet');return;}
+  mkChart('c-glucose',{type:'line',data:{
+    labels:pts.map(function(l){return fmtDate(l.date);}),
+    datasets:[{label:'Glucose',data:pts.map(function(l){return l.glucose;}),borderColor:'#BA7517',backgroundColor:'rgba(186,117,23,0.07)',tension:0.3,pointRadius:4,borderWidth:2,fill:true}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis(function(v){return v+' mmol';})}}});
+}
+
+function renderWater(logs){
+  var pts=logs.filter(function(l){return l.water;});
+  if(!pts.length){noData('c-water','No water data logged');return;}
+  mkChart('c-water',{type:'bar',data:{
+    labels:pts.map(function(l){return fmtDate(l.date);}),
+    datasets:[{label:'Water',data:pts.map(function(l){return l.water;}),backgroundColor:'rgba(29,158,117,0.7)',borderRadius:3,borderSkipped:false}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis(function(v){return v+'L';})}}});
+}
+
+function renderMood(logs){
   var counts={1:0,2:0,3:0,4:0,5:0};
-  logs.forEach(function(l){if(l.mood) counts[l.mood]=(counts[l.mood]||0)+1;});
-  var total=Object.values(counts).reduce(function(a,b){return a+b;},0);
-  var labels={1:'1 — terrible',2:'2 — rough',3:'3 — ok',4:'4 — good',5:'5 — great'};
-  var colors=['#E24B4A','#BA7517','#888780','#1D9E75','#378ADD'];
+  logs.forEach(function(l){if(l.mood&&counts[l.mood]!==undefined)counts[l.mood]++;});
+  var total=counts[1]+counts[2]+counts[3]+counts[4]+counts[5];
   var el=document.getElementById('mood-bars');
   if(!total){el.innerHTML='<div class="no-data">No mood data</div>';return;}
-  el.innerHTML='<div class="mood-bar-wrap">'+[5,4,3,2,1].map(function(v){
-    var pct=total?Math.round(counts[v]/total*100):0;
-    return '<div class="mood-bar-row"><div class="mood-bar-label">'+v+'</div><div class="mood-bar-bg"><div class="mood-bar-fill" style="width:'+pct+'%;background:'+colors[v-1]+';"></div></div><div class="mood-bar-count">'+counts[v]+'</div></div>';
-  }).join('')+'</div>';
-}
-
-function renderStreak(allLogs){
-  var logged=new Set(allLogs.map(function(l){return l.date;}));
-  var today=new Date(); var days=[];
-  for(var i=27;i>=0;i--){var d=new Date(today);d.setDate(d.getDate()-i);days.push(d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()));}
-  var streak=0;
-  for(var j=days.length-1;j>=0;j--){if(logged.has(days[j]))streak++;else break;}
-  document.getElementById('streak-count').textContent=streak+' day streak';
-  document.getElementById('streak-grid').innerHTML=days.map(function(ds){
-    var cls=ds===todayStr()?'streak-today':(logged.has(ds)?'streak-filled':'streak-empty');
-    return '<div class="streak-day '+cls+'" title="'+ds+'"></div>';
+  var colors={1:'#E24B4A',2:'#BA7517',3:'#888780',4:'#1D9E75',5:'#378ADD'};
+  el.innerHTML=[5,4,3,2,1].map(function(v){
+    var pct=Math.round(counts[v]/total*100);
+    return '<div class="mood-bar-row"><div class="mood-bar-label">'+v+'</div><div class="mood-bar-bg"><div class="mood-bar-fill" style="width:'+pct+'%;background:'+colors[v]+'"></div></div><div class="mood-bar-ct">'+counts[v]+'</div></div>';
   }).join('');
 }
 
-function renderCompounds(allLogs){
-  var compoundMap={},peptideMap={};
-  allLogs.forEach(function(l){
-    if(l.anabolics) l.anabolics.forEach(function(c){if(c.name){compoundMap[c.name]=c.dose||'—';}});
-    if(l.peptides) l.peptides.forEach(function(c){if(c.name){peptideMap[c.name]=c.dose||'—';}});
+function renderStreak(all){
+  var logged={};
+  all.forEach(function(l){logged[l.date]=true;});
+  var today=new Date();var days=[];
+  for(var i=27;i>=0;i--){var d=new Date(today);d.setDate(d.getDate()-i);days.push(d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()));}
+  var streak=0;
+  for(var j=days.length-1;j>=0;j--){if(logged[days[j]])streak++;else break;}
+  document.getElementById('streak-label').textContent=streak+' day streak';
+  document.getElementById('streak-grid').innerHTML=days.map(function(ds){
+    return '<div class="sd '+(logged[ds]?'sd-on':'sd-off')+'" title="'+ds+'"></div>';
+  }).join('');
+}
+
+function renderCompounds(all){
+  var cm={},pm={};
+  all.forEach(function(l){
+    if(l.anabolics)l.anabolics.forEach(function(c){if(c.name)cm[c.name]=c.dose;});
+    if(l.peptides)l.peptides.forEach(function(c){if(c.name)pm[c.name]=c.dose;});
   });
+  var ck=Object.keys(cm),pk=Object.keys(pm);
   var el=document.getElementById('compounds-display');
-  var html='';
-  var cKeys=Object.keys(compoundMap); var pKeys=Object.keys(peptideMap);
-  if(!cKeys.length&&!pKeys.length){el.innerHTML='<div class="no-data">No compounds logged</div>';return;}
-  if(cKeys.length){
-    html+='<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Anabolics</div>';
-    html+='<div class="compounds-grid" style="margin-bottom:14px;">'+cKeys.map(function(k){return '<div class="compound-pill"><div class="compound-name">'+k+'</div><div class="compound-dose">'+compoundMap[k]+' mg/dose</div></div>';}).join('')+'</div>';
+  if(!ck.length&&!pk.length){el.innerHTML='<div class="no-data">No compounds logged</div>';return;}
+  var h='';
+  if(ck.length){
+    h+='<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;">Anabolics</div>';
+    h+='<div class="compounds-grid" style="margin-bottom:12px;">'+ck.map(function(k){return '<div class="compound-pill"><div class="compound-name">'+k+'</div><div class="compound-dose">'+cm[k]+' mg</div></div>';}).join('')+'</div>';
   }
-  if(pKeys.length){
-    html+='<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Peptides</div>';
-    html+='<div class="compounds-grid">'+pKeys.map(function(k){return '<div class="compound-pill"><div class="compound-name">'+k+'</div><div class="compound-dose">'+peptideMap[k]+' mg/dose</div></div>';}).join('')+'</div>';
+  if(pk.length){
+    h+='<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;">Peptides</div>';
+    h+='<div class="compounds-grid">'+pk.map(function(k){return '<div class="compound-pill"><div class="compound-name">'+k+'</div><div class="compound-dose">'+pm[k]+' mg</div></div>';}).join('')+'</div>';
   }
-  el.innerHTML=html;
+  el.innerHTML=h;
 }
 
-function renderGlucoseChart(allLogs){
-  var pts=allLogs.filter(function(l){return l.glucose;});
-  if(!pts.length){document.getElementById('chart-glucose').parentElement.innerHTML='<div class="no-data">No glucose data</div>';return;}
-  makeChart('chart-glucose','line',{
-    labels:pts.map(function(l){return formatDateShort(l.date);}),
-    datasets:[{label:'Glucose',data:pts.map(function(l){return l.glucose;}),borderColor:'#BA7517',backgroundColor:'rgba(186,117,23,0.08)',tension:0.3,pointRadius:4,borderWidth:2,fill:true}]
-  },{...baseChartOpts(),plugins:{legend:{display:false}},scales:{x:{...baseChartOpts().scales.x},y:{...baseChartOpts().scales.y,min:3,ticks:{...baseChartOpts().scales.y.ticks,callback:function(v){return v+' mmol';}}}}});
-}
-
-function renderWaterChart(logs){
-  var pts=logs.filter(function(l){return l.water;});
-  if(!pts.length){document.getElementById('chart-water').parentElement.innerHTML='<div class="no-data">No water data</div>';return;}
-  makeChart('chart-water','bar',{
-    labels:pts.map(function(l){return formatDateShort(l.date);}),
-    datasets:[{label:'Water',data:pts.map(function(l){return l.water;}),backgroundColor:'rgba(29,158,117,0.7)',borderRadius:3,borderSkipped:false}]
-  },{...baseChartOpts(),plugins:{legend:{display:false}},scales:{x:{...baseChartOpts().scales.x},y:{...baseChartOpts().scales.y,ticks:{...baseChartOpts().scales.y.ticks,callback:function(v){return v+'L';}}}}});
-}
-
-function renderNotes(allLogs){
-  var withNotes=allLogs.filter(function(l){return l.notes&&l.notes.trim();}).slice(-5).reverse();
+function renderNotes(all){
+  var wn=all.filter(function(l){return l.notes&&l.notes.trim();}).slice(-6).reverse();
   var el=document.getElementById('notes-list');
-  if(!withNotes.length){el.innerHTML='<div class="no-data">No notes yet</div>';return;}
-  el.innerHTML='<div class="notes-list">'+withNotes.map(function(l){
+  if(!wn.length){el.innerHTML='<div class="no-data">No notes yet</div>';return;}
+  el.innerHTML='<div class="notes-list">'+wn.map(function(l){
     var d=new Date(l.date+'T00:00:00');
     return '<div class="note-row"><div class="note-date">'+d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</div><div class="note-text">'+l.notes+'</div></div>';
   }).join('')+'</div>';
 }
 
-function moodLabel(v){if(!v) return '—'; return ['','1 — terrible','2 — rough','3 — ok','4 — good','5 — great'][v]||v;}
-
-function renderLogTable(logs){
-  var tbody=document.getElementById('log-tbody');
-  var reversed=logs.slice().reverse();
-  if(!reversed.length){tbody.innerHTML='<tr><td colspan="11" style="text-align:center;padding:1.5rem;color:var(--text3);">No entries in this range</td></tr>';return;}
-  tbody.innerHTML=reversed.map(function(l){
-    var d=new Date(l.date+'T00:00:00');
-    var dateStr=d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-    var bp=l.bps&&l.bpd?l.bps+'/'+l.bpd:'—';
-    var moodBadge=l.mood?('<span class="badge '+(l.mood>=4?'badge-green':l.mood<=2?'badge-red':'badge-blue')+'">'+l.mood+'</span>'):'—';
+function renderTable(logs){
+  var tb=document.getElementById('log-tbody');
+  var rev=logs.slice().reverse();
+  if(!rev.length){tb.innerHTML='<tr><td colspan="13" style="text-align:center;padding:1.5rem;color:var(--text3);">No entries in this range</td></tr>';return;}
+  tb.innerHTML=rev.map(function(l){
+    var dd=new Date(l.date+'T00:00:00');
+    var ds=dd.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    var mb=l.mood?'<span class="badge '+(l.mood>=4?'badge-green':l.mood<=2?'badge-red':'badge-blue')+'">'+l.mood+'</span>':'—';
     return '<tr>'
-      +'<td>'+dateStr+'</td>'
+      +'<td>'+ds+'</td>'
       +'<td>'+(l.weight?l.weight+' kg':'—')+'</td>'
       +'<td>'+(l.cals?l.cals.toLocaleString():'—')+'</td>'
       +'<td>'+(l.protein?l.protein+'g':'—')+'</td>'
+      +'<td>'+(l.carbs?l.carbs+'g':'—')+'</td>'
+      +'<td>'+(l.fats?l.fats+'g':'—')+'</td>'
       +'<td>'+(l.steps?l.steps.toLocaleString():'—')+'</td>'
-      +'<td>'+bp+'</td>'
-      +'<td>'+(l.hr?l.hr+' bpm':'—')+'</td>'
+      +'<td>'+(l.bps&&l.bpd?l.bps+'/'+l.bpd:'—')+'</td>'
+      +'<td>'+(l.hr?l.hr:'—')+'</td>'
       +'<td>'+(l.sleep?l.sleep+'h':'—')+'</td>'
-      +'<td>'+moodBadge+'</td>'
+      +'<td>'+mb+'</td>'
       +'<td style="font-size:11px;">'+(l.training||'—')+'</td>'
-      +'<td style="font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;">'+(l.notes||'—')+'</td>'
+      +'<td style="font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(l.notes||'—')+'</td>'
       +'</tr>';
   }).join('');
 }
 
-(function(){
-  var idx=localStorage.getItem('checkin_index');
-  var parsed=idx?JSON.parse(idx):[];
-  if(!parsed||parsed.length===0) seedDemoData(true);
-  else seedDemoData();
-})();
-render();
+window.onload = function(){
+  var idx = gS('checkin_index');
+  if(!idx || !idx.length){
+    loadDemoData();
+  } else {
+    render();
+  }
+};
 </script>
 </body>
 </html>
