@@ -540,6 +540,20 @@ async function renderPhotos(all){
   }
 
   photos.sort(function(a,b){return b.date.localeCompare(a.date);});
+
+  // Debug output
+  var dbg=document.getElementById('photos-debug');
+  if(dbg){
+    var info='Logs scanned: '+all.length+'\n';
+    info+='Logs with photos field: '+all.filter(function(l){return l.photos&&l.photos.length;}).length+'\n';
+    info+='Photos found total: '+photos.length+'\n';
+    info+='\nCheckin photo data from Firestore:\n';
+    all.slice().reverse().slice(0,5).forEach(function(l){
+      info+=l.date+' — photos: '+(l.photos?JSON.stringify(l.photos):'undefined')+'\n';
+    });
+    dbg.textContent=info;
+  }
+
   if(!photos.length){el.innerHTML='<div class="no-data">No photos yet</div>';return;}
   el.innerHTML='<div class="photos-grid">'+photos.slice(0,24).map(function(p){
     var ds='';
