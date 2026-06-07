@@ -229,6 +229,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAGjyhdituUusNdhRkfOPSY157niIzMt5c",
@@ -241,6 +242,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 const CLIENTS = [
   { id: 'jason',   name: 'Jason',        initials: 'JA' },
   { id: 'jessica', name: 'Jessica Cass', initials: 'JC' }
@@ -327,7 +329,7 @@ function render(){
   try{renderMood(logs);}catch(e){console.error(e);}
   try{renderStreak(allLogs);}catch(e){console.error(e);}
   try{renderCompounds(logs);}catch(e){console.error(e);}
-  try{renderPhotos(allLogs);}catch(e){console.error(e);}
+  renderPhotos(allLogs).catch(function(e){console.error("renderPhotos error:",e);});
   try{renderNotes(allLogs);}catch(e){console.error(e);}
   try{renderTable(logs);}catch(e){console.error(e);}
 }
@@ -503,20 +505,49 @@ function renderCompounds(logs){
 
 window.selectCompound=function(name){selectedCompound=name;renderCompounds(getLogs(currentRange));}
 
-function renderPhotos(all){
+async function renderPhotos(all){
   var el=document.getElementById('photos-grid');
   if(!el)return;
+  el.innerHTML='<div class="no-data">Loading photos...</div>';
+
+  // First collect any URLs stored in Firestore entries
   var photos=[];
   all.slice().reverse().forEach(function(l){
     if(l.photos&&l.photos.length){
-      l.photos.forEach(function(p){ photos.push({url:p.url,date:l.date}); });
+      l.photos.forEach(function(p){
+        if(p.url) photos.push({url:p.url,date:l.date});
+      });
     }
   });
+
+  // Also fetch directly from Storage in case URLs weren't saved to Firestore
+  try{
+    var storageRef=ref(storage,'clients/'+CLIENT_ID()+'/photos');
+    var result=await listAll(storageRef);
+    var storageUrls=await Promise.all(result.items.map(async function(item){
+      var url=await getDownloadURL(item);
+      // Extract date from filename: clients/jason/photos/2026-06-07_timestamp_name.jpg
+      var nameParts=item.name.split('_');
+      var date=nameParts[0]||'';
+      return{url:url,date:date,name:item.name};
+    }));
+    // Merge: add any Storage photos not already in Firestore list
+    var existingUrls=photos.map(function(p){return p.url;});
+    storageUrls.forEach(function(sp){
+      if(!existingUrls.includes(sp.url)) photos.push({url:sp.url,date:sp.date});
+    });
+  }catch(e){
+    console.warn('Could not list Storage photos:',e.message);
+  }
+
+  // Sort newest first
+  photos.sort(function(a,b){return b.date.localeCompare(a.date);});
+
   if(!photos.length){el.innerHTML='<div class="no-data">No photos yet</div>';return;}
-  el.innerHTML='<div class="photos-grid">'+photos.slice(0,12).map(function(p){
-    var d=new Date(p.date+'T00:00:00');
-    var ds=d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-    return'<div class="photo-item"><a href="'+p.url+'" target="_blank"><img src="'+p.url+'" alt="Physique photo '+ds+'"/></a><div class="photo-item-date">'+ds+'</div></div>';
+  el.innerHTML='<div class="photos-grid">'+photos.slice(0,24).map(function(p){
+    var ds='';
+    if(p.date){try{var d=new Date(p.date+'T00:00:00');ds=d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});}catch(e){ds=p.date;}}
+    return'<div class="photo-item"><a href="'+p.url+'" target="_blank"><img src="'+p.url+'" alt="Physique photo '+ds+'" loading="lazy"/></a>'+(ds?'<div class="photo-item-date">'+ds+'</div>':'')+'</div>';
   }).join('')+'</div>';
 }
 
