@@ -262,14 +262,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="section-title"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Anabolics used today <span class="opt-label">— leave blank if none</span></div>
       <div class="compound-header"><span>Compound</span><span>Dose (mg)</span><span></span></div>
       <div id="anabolics-list"></div>
-      <button class="add-btn" onclick="addCompound('anabolics-list',anabolicOptions)">+ Add compound</button>
+      <button class="add-btn" onclick="addCompound('anabolics-list',window.anabolicOptions)">+ Add compound</button>
     </div>
 
     <div class="card">
       <div class="section-title"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>Peptides used today <span class="opt-label">— leave blank if none</span></div>
       <div class="compound-header"><span>Peptide</span><span>Dose (mg)</span><span></span></div>
       <div id="peptides-list"></div>
-      <button class="add-btn" onclick="addCompound('peptides-list',peptideOptions)">+ Add peptide</button>
+      <button class="add-btn" onclick="addCompound('peptides-list',window.peptideOptions)">+ Add peptide</button>
     </div>
 
     <div class="card">
@@ -436,6 +436,8 @@ window.goToday=function(){document.getElementById('date-picker').value=todayStr(
 window.backToForm=function(){document.getElementById('success-view').style.display='none';document.getElementById('form-view').style.display='block';loadEntry();}
 window.setMood=setMood;
 window.addCompound=addCompound;
+window.anabolicOptions=anabolicOptions;
+window.peptideOptions=peptideOptions;
 window.validateWeight=validateWeight;window.validateHR=validateHR;window.validateSleep=validateSleep;
 window.validateBP=validateBP;window.validateGlucose=validateGlucose;window.validateCals=validateCals;window.validateSteps=validateSteps;
 
