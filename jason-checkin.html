@@ -332,7 +332,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="field"><textarea id="f-notes" placeholder="How did training go? Any symptoms, energy levels, joint pain, hunger, mood changes..."></textarea></div>
     </div>
 
-    <button class="submit-btn" id="submit-btn" onclick="submitEntry()">Send to coach</button>
+    <button class="submit-btn" id="submit-btn">Send to coach</button>
   </div>
 </div>
 
@@ -342,7 +342,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
   <h2>Logged with George</h2>
   <p id="success-msg">Your check-in has been recorded and logged with George.</p>
-  <button class="log-again-btn" onclick="backToForm()">&#8592; Back</button>
+  <button class="log-again-btn" id="back-btn">&#8592; Back</button>
 </div>
 
 <script type="module">
@@ -523,6 +523,9 @@ buildRatingRow('r-energy', 'energy', ['very low','low','ok','good','great']);
 buildRatingRow('r-motivation', 'motivation', ['very low','low','ok','good','great']);
 buildRatingRow('r-sleep-quality', 'sleepQuality', ['very poor','poor','ok','good','great']);
 buildFileList();
+document.getElementById('intro-submit-btn').addEventListener('click', window.submitIntro);
+document.getElementById('submit-btn').addEventListener('click', window.submitEntry);
+document.getElementById('back-btn').addEventListener('click', window.backToForm);
 document.getElementById('btn-add-anabolic').addEventListener('click',function(){addCompound('anabolics-list',anabolicOptions);});
 document.getElementById('btn-add-peptide').addEventListener('click',function(){addCompound('peptides-list',peptideOptions);});
 window.validateWeight=validateWeight;window.validateHR=validateHR;window.validateSleep=validateSleep;
