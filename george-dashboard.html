@@ -133,22 +133,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="card">
         <div class="card-title">Weight <span class="card-title-note">kg</span></div>
         <div class="legend"><span><span class="ldot" style="background:#378ADD"></span>Daily</span><span><span class="ldot" style="background:#E24B4A"></span>7d rolling avg</span></div>
-        <div class="chart-wrap" style="height:170px;"><canvas id="c-weight"></canvas></div>
+        <div class="chart-wrap" style="height:170px;"><div id="wrap-c-weight" style="width:100%;height:100%;"><canvas id="c-weight"></canvas></div></div>
       </div>
       <div class="card">
         <div class="card-title">Daily steps</div>
-        <div class="chart-wrap" style="height:190px;"><canvas id="c-steps"></canvas></div>
+        <div class="chart-wrap" style="height:190px;"><div id="wrap-c-steps" style="width:100%;height:100%;"><canvas id="c-steps"></canvas></div></div>
       </div>
     </div>
 
     <div class="two-col" style="margin-top:14px;">
       <div class="card">
         <div class="card-title">Calories <span class="card-title-note">kcal/day — coloured by macro</span></div>
-        <div class="chart-wrap" style="height:150px;"><canvas id="c-cals"></canvas></div>
+        <div class="chart-wrap" style="height:150px;"><div id="wrap-c-cals" style="width:100%;height:100%;"><canvas id="c-cals"></canvas></div></div>
       </div>
       <div class="card">
         <div class="card-title">Macros <span class="card-title-note">avg g/day</span></div>
-        <div class="chart-wrap" style="height:170px;"><canvas id="c-macros"></canvas></div>
+        <div class="chart-wrap" style="height:170px;"><div id="wrap-c-macros" style="width:100%;height:100%;"><canvas id="c-macros"></canvas></div></div>
       </div>
     </div>
 
@@ -156,23 +156,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="card">
         <div class="card-title">Blood pressure <span class="card-title-note">mmHg</span></div>
         <div class="legend" id="leg-bp"></div>
-        <div class="chart-wrap" style="height:140px;"><canvas id="c-bp"></canvas></div>
+        <div class="chart-wrap" style="height:140px;"><div id="wrap-c-bp" style="width:100%;height:100%;"><canvas id="c-bp"></canvas></div></div>
       </div>
       <div class="card">
         <div class="card-title">Heart rate &amp; sleep</div>
         <div class="legend" id="leg-health"></div>
-        <div class="chart-wrap" style="height:140px;"><canvas id="c-health"></canvas></div>
+        <div class="chart-wrap" style="height:140px;"><div id="wrap-c-health" style="width:100%;height:100%;"><canvas id="c-health"></canvas></div></div>
       </div>
     </div>
 
     <div class="two-col" style="margin-top:14px;">
       <div class="card">
         <div class="card-title">Fasted glucose <span class="card-title-note">mmol/L</span></div>
-        <div class="chart-wrap" style="height:130px;"><canvas id="c-glucose"></canvas></div>
+        <div class="chart-wrap" style="height:130px;"><div id="wrap-c-glucose" style="width:100%;height:100%;"><canvas id="c-glucose"></canvas></div></div>
       </div>
       <div class="card">
         <div class="card-title">Water intake <span class="card-title-note">litres/day</span></div>
-        <div class="chart-wrap" style="height:130px;"><canvas id="c-water"></canvas></div>
+        <div class="chart-wrap" style="height:130px;"><div id="wrap-c-water" style="width:100%;height:100%;"><canvas id="c-water"></canvas></div></div>
       </div>
     </div>
 
@@ -275,12 +275,39 @@ function xAxis(){return{ticks:{color:tc(),font:{size:10},maxRotation:45,autoSkip
 function yAxis(cb){var o={ticks:{color:tc(),font:{size:10}},grid:{color:gc()},border:{display:false}};if(cb)o.ticks.callback=cb;return o;}
 function noLegend(){return{legend:{display:false}};}
 
+function destroyAllCharts(){
+  Object.keys(charts).forEach(function(id){
+    try{if(charts[id]){charts[id].destroy();}}catch(e){}
+  });
+  charts={};
+}
+
 function mkChart(id,cfg){
-  if(charts[id]){charts[id].destroy();delete charts[id];}
-  var el=document.getElementById(id);if(!el)return;
+  // Destroy existing chart
+  if(charts[id]){try{charts[id].destroy();}catch(e){}delete charts[id];}
+  // Find or recreate canvas inside its wrapper
+  var wrapper=document.getElementById('wrap-'+id);
+  if(!wrapper){
+    // Fallback: canvas is directly in DOM without wrapper
+    var el=document.getElementById(id);
+    if(!el)return;
+    try{charts[id]=new Chart(el,cfg);}catch(e){console.error('Chart error',id,e);}
+    return;
+  }
+  // Recreate canvas fresh to avoid "canvas already in use" error
+  wrapper.innerHTML='<canvas id="'+id+'"></canvas>';
+  var el=document.getElementById(id);
+  if(!el)return;
   try{charts[id]=new Chart(el,cfg);}catch(e){console.error('Chart error',id,e);}
 }
-function noData(id,msg){var el=document.getElementById(id);if(el)el.parentElement.innerHTML='<div class="no-data">'+(msg||'No data')+'</div>';}
+
+function noData(id,msg){
+  if(charts[id]){try{charts[id].destroy();}catch(e){}delete charts[id];}
+  var wrapper=document.getElementById('wrap-'+id);
+  if(wrapper){wrapper.innerHTML='<div class="no-data">'+(msg||'No data')+'</div>';return;}
+  var el=document.getElementById(id);
+  if(el)el.parentElement.innerHTML='<div class="no-data">'+(msg||'No data')+'</div>';
+}
 
 function getLogs(range){
   if(range>=9000)return allLogs.slice();
@@ -653,6 +680,7 @@ function buildClientSwitcher(){
     var c=getClient();
     document.getElementById('topbar-avatar').textContent=c.initials;
     document.getElementById('topbar-name').textContent=c.name+' — coach dashboard';
+    destroyAllCharts();
     allLogs=[];
     selectedCompound=null;
     init();
