@@ -109,7 +109,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <body>
 
 <div class="saving-overlay" id="saving-overlay">
-  <div class="saving-box">Saving to coach...</div>
+  <div class="saving-box" id="saving-msg">Saving to coach...</div>
 </div>
 
 <!-- Intro screen (shown first time only) -->
@@ -687,7 +687,13 @@ window.submitEntry=async function(){
         await uploadBytes(pRef,pFile);
         var pUrl=await getDownloadURL(pRef);
         uploadedPhotos.push({url:pUrl,name:pFile.name,date:date,uploadedAt:new Date().toISOString()});
-      }catch(e){ console.error('Photo upload failed',e); }
+      }catch(e){
+        console.error('Photo upload failed',e);
+        hideOverlay();
+        btn.disabled=false;btn.textContent='Send to coach';
+        alert('Photo upload failed: '+e.message+'\n\nPlease check Firebase Storage rules are set to allow read/write.');
+        return;
+      }
     }
   }
   btn.textContent='Saving...';
