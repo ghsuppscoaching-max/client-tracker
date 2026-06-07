@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Check-in"/>
+<title>Jason — Daily check-in</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#ffffff;--bg2:#f5f5f3;--bg3:#efefec;
+  --text:#1a1a18;--text2:#6b6b67;--text3:#9e9e9a;
+  --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);
+  --radius:10px;--radius-lg:14px;
+  --green-bg:#eaf3de;--green-text:#27500a;--green-border:rgba(99,153,34,0.3);
+  --warn-bg:#faeeda;--warn-text:#633806;--warn-border:rgba(186,117,23,0.3);
+  --red-bg:#fcebeb;--red-text:#791f1f;--red-border:rgba(226,75,74,0.3);
+  --blue-bg:#e6f1fb;--blue-text:#0c447c;--blue-border:rgba(55,138,221,0.25);
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1c1c1a;--bg2:#262624;--bg3:#2e2e2c;
+    --text:#f0f0ec;--text2:#a0a09c;--text3:#6a6a66;
+    --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.22);
+    --green-bg:#173404;--green-text:#c0dd97;
+    --warn-bg:#412402;--warn-text:#fac775;
+    --red-bg:#501313;--red-text:#f09595;
+    --blue-bg:#042c53;--blue-text:#b5d4f4;
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh;padding-bottom:48px;}
+.top-bar{background:var(--bg);border-bottom:0.5px solid var(--border);padding:14px 16px 10px;position:sticky;top:0;z-index:20;}
+.top-bar h1{font-size:16px;font-weight:600;text-align:center;}
+.date-nav{display:flex;align-items:center;gap:8px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:6px 10px;margin:12px 14px 0;}
+.date-nav label{font-size:12px;color:var(--text2);white-space:nowrap;}
+.date-nav input[type=date]{flex:1;background:none;border:none;font-size:14px;color:var(--text);font-family:inherit;outline:none;padding:0;min-width:0;}
+.date-nav-btns{display:flex;gap:4px;}
+.date-nav-btns button{background:var(--bg);border:0.5px solid var(--border);border-radius:6px;padding:4px 10px;font-size:13px;color:var(--text2);cursor:pointer;font-family:inherit;white-space:nowrap;}
+.today-btn{color:var(--blue-text)!important;background:var(--blue-bg)!important;border-color:var(--blue-border)!important;}
+.already-banner{border-radius:var(--radius-lg);margin:12px 14px 0;padding:14px 15px;background:var(--warn-bg);border:0.5px solid var(--warn-border);display:none;}
+.already-banner-title{font-size:14px;font-weight:600;color:var(--warn-text);margin-bottom:4px;}
+.already-banner-sub{font-size:13px;color:var(--warn-text);opacity:.85;margin-bottom:10px;line-height:1.4;}
+.already-banner-btns{display:flex;gap:8px;}
+.already-banner-btns button{flex:1;padding:9px;border-radius:var(--radius);font-size:13px;font-family:inherit;cursor:pointer;border:0.5px solid var(--warn-border);background:none;color:var(--warn-text);font-weight:500;}
+.already-banner-btns .edit-btn{background:var(--warn-text);color:var(--warn-bg);border-color:var(--warn-text);}
+.card{background:var(--bg);border-radius:var(--radius-lg);margin:12px 14px 0;padding:15px;}
+.section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.section-title svg{width:14px;height:14px;flex-shrink:0;stroke:currentColor;fill:none;}
+.sub-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:5px;margin:12px 0 8px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:13px;color:var(--text2);}
+.opt-label{font-size:10px;color:var(--text3);margin-left:3px;font-weight:400;text-transform:none;letter-spacing:0;}
+.field input,.field select,.field textarea{width:100%;padding:10px 11px;font-size:16px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:inherit;outline:none;-webkit-appearance:none;appearance:none;}
+.field input.err{border-color:var(--red-border);background:var(--red-bg);}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--border2);}
+.field textarea{resize:none;min-height:75px;line-height:1.5;font-size:15px;}
+.field-hint{font-size:11px;margin-top:3px;font-style:italic;display:none;}
+.field-hint.err{color:var(--red-text);display:block;}
+.mood-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.mood-btn{padding:10px 2px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg2);cursor:pointer;font-size:13px;color:var(--text2);text-align:center;line-height:1.4;font-family:inherit;-webkit-tap-highlight-color:transparent;}
+.mood-btn.on{background:var(--bg3);border-color:var(--border2);color:var(--text);font-weight:600;}
+.mood-label{font-size:10px;display:block;margin-top:2px;color:var(--text3);}
+.compound-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.compound-row select{flex:1.5;padding:9px 10px;font-size:14px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:inherit;-webkit-appearance:none;appearance:none;outline:none;}
+.compound-row input{flex:1;padding:9px 10px;font-size:14px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:inherit;outline:none;}
+.remove-btn{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:2px 4px;line-height:1;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
+.add-btn{display:flex;align-items:center;gap:6px;background:none;border:0.5px dashed var(--border2);border-radius:var(--radius);padding:9px 12px;font-size:13px;color:var(--text2);cursor:pointer;width:100%;font-family:inherit;margin-top:4px;-webkit-tap-highlight-color:transparent;}
+.compound-header{font-size:11px;color:var(--text3);display:grid;grid-template-columns:1.5fr 1fr 28px;gap:8px;margin-bottom:5px;padding:0 2px;}
+.submit-btn{display:block;width:calc(100% - 28px);margin:16px 14px 0;padding:16px;background:var(--text);color:var(--bg);border:none;border-radius:var(--radius-lg);font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;}
+.submit-btn:active{opacity:.8;transform:scale(.99);}
+.submit-btn:disabled{opacity:.35;}
+.success-screen{display:none;text-align:center;padding:60px 24px;}
+.success-screen .tick{width:64px;height:64px;background:var(--green-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.success-screen h2{font-size:20px;font-weight:600;margin-bottom:8px;}
+.success-screen p{font-size:14px;color:var(--text2);line-height:1.6;}
+.log-again-btn{margin-top:20px;padding:12px 24px;border:0.5px solid var(--border2);border-radius:var(--radius);background:none;font-size:14px;color:var(--text2);cursor:pointer;font-family:inherit;}
+.divider{height:.5px;background:var(--border);margin:12px 0;}
+.saving-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);align-items:center;justify-content:center;z-index:100;}
+.saving-overlay.show{display:flex;}
+.saving-box{background:var(--bg);border-radius:var(--radius-lg);padding:24px 32px;text-align:center;font-size:14px;color:var(--text2);}
+/* Rating rows */
+.rating-row{display:flex;gap:6px;}
+.rating-btn{flex:1;padding:9px 2px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg2);cursor:pointer;font-size:13px;color:var(--text2);text-align:center;line-height:1.4;font-family:inherit;}
+.rating-btn.on{background:var(--bg3);border-color:var(--border2);color:var(--text);font-weight:600;}
+.rating-lbl{font-size:10px;display:block;margin-top:2px;color:var(--text3);}
+/* Intro screen */
+.intro-screen{min-height:100vh;background:var(--bg3);padding:0 0 48px;}
+.intro-hero{background:var(--bg);padding:32px 20px 24px;text-align:center;border-bottom:0.5px solid var(--border);}
+.intro-hero h1{font-size:22px;font-weight:600;margin-bottom:8px;}
+.intro-hero p{font-size:14px;color:var(--text2);line-height:1.6;max-width:320px;margin:0 auto;}
+.intro-card{background:var(--bg);border-radius:var(--radius-lg);margin:14px 14px 0;padding:16px;}
+.intro-section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;}
+.intro-field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.intro-field label{font-size:13px;color:var(--text2);}
+.intro-field input,.intro-field select,.intro-field textarea{width:100%;padding:10px 11px;font-size:16px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:inherit;outline:none;-webkit-appearance:none;appearance:none;}
+.intro-field textarea{resize:none;min-height:80px;line-height:1.5;}
+</style>
+</head>
+<body>
+
+<div class="saving-overlay" id="saving-overlay">
+  <div class="saving-box">Saving to coach...</div>
+</div>
+
+<!-- Intro screen (shown first time only) -->
+<div id="intro-screen" class="intro-screen" style="display:none;">
+  <div class="intro-hero">
+    <h1>Welcome, Jessica</h1>
+    <p>Before your first check-in, George needs a few details. This only takes a couple of minutes and you won't see it again.</p>
+  </div>
+
+  <div class="intro-card">
+    <div class="intro-section-title">About you</div>
+    <div class="two-col">
+      <div class="intro-field"><label>First name</label><input type="text" id="i-name" placeholder="Jessica"/></div>
+      <div class="intro-field"><label>Age</label><input type="number" id="i-age" placeholder="e.g. 28" inputmode="numeric"/></div>
+      <div class="intro-field"><label>Height (cm)</label><input type="number" id="i-height" placeholder="e.g. 180" inputmode="numeric"/></div>
+      <div class="intro-field"><label>Starting weight (kg)</label><input type="number" id="i-start-weight" placeholder="e.g. 90" step="0.1" inputmode="decimal"/></div>
+      <div class="intro-field"><label>Estimated body fat %</label><input type="number" id="i-bf" placeholder="e.g. 18" step="0.1" inputmode="decimal"/></div>
+      <div class="intro-field"><label>Target weight (kg) <span style="font-size:10px;color:var(--text3);">optional</span></label><input type="number" id="i-target" placeholder="e.g. 80" step="0.1" inputmode="decimal"/></div>
+    </div>
+    <div class="intro-field"><label>Goal</label>
+      <select id="i-goal">
+        <option value="">— select —</option>
+        <option>Fat loss</option>
+        <option>Muscle gain</option>
+        <option>Body recomposition</option>
+        <option>Contest prep</option>
+        <option>Maintenance</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="intro-card">
+    <div class="intro-section-title">Training background</div>
+    <div class="intro-field"><label>Years training</label>
+      <select id="i-experience">
+        <option value="">— select —</option>
+        <option>Less than 1 year</option>
+        <option>1–2 years</option>
+        <option>3–5 years</option>
+        <option>5–10 years</option>
+        <option>10+ years</option>
+      </select>
+    </div>
+    <div class="intro-field"><label>How many days per week do you train?</label>
+      <select id="i-days">
+        <option value="">— select —</option>
+        <option>1–2 days</option>
+        <option>3–4 days</option>
+        <option>5–6 days</option>
+        <option>Every day</option>
+      </select>
+    </div>
+    <div class="intro-field"><label>Training style</label>
+      <select id="i-style">
+        <option value="">— select —</option>
+        <option>Bodybuilding (hypertrophy)</option>
+        <option>Powerlifting / strength</option>
+        <option>Mixed / general fitness</option>
+        <option>Cardio focused</option>
+      </select>
+    </div>
+    <div class="intro-field"><label>Current training split</label><textarea id="i-split" placeholder="e.g. Mon — chest/tris, Tue — back/bis, Wed — rest, Thu — legs, Fri — shoulders..."></textarea></div>
+    <div class="intro-field"><label>Cardio on a typical week</label><textarea id="i-cardio" placeholder="e.g. 3x 30min incline walks, 1x 20min HIIT..."></textarea></div>
+  </div>
+
+  <div class="intro-card">
+    <div class="intro-section-title">Health &amp; history</div>
+    <div class="intro-field"><label>Any injuries or physical limitations?</label><textarea id="i-injuries" placeholder="e.g. lower back issues, dodgy left knee..."></textarea></div>
+    <div class="intro-field"><label>Current medical conditions</label><textarea id="i-medical" placeholder="e.g. high blood pressure, thyroid issues..."></textarea></div>
+    <div class="intro-field"><label>Past medical conditions</label><textarea id="i-medical-past" placeholder="e.g. previous surgeries, historical conditions..."></textarea></div>
+    <div class="intro-field"><label>Past anabolic experience</label><textarea id="i-anabolic-history" placeholder="e.g. previous cycles, compounds used, PCT history, how long ago..."></textarea></div>
+    <div class="intro-field"><label>Supplements used daily (wanting to continue)</label><textarea id="i-supplements" placeholder="e.g. creatine 5g, vitamin D 4000IU, omega-3, magnesium..."></textarea></div>
+  </div>
+
+  <div class="intro-card">
+    <div class="intro-section-title">Current wellbeing</div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px;">Rate how you feel right now, before starting the programme.</p>
+    <div class="intro-field">
+      <label>Energy levels</label>
+      <div class="rating-row" id="r-energy"></div>
+    </div>
+    <div class="intro-field">
+      <label>Motivation</label>
+      <div class="rating-row" id="r-motivation"></div>
+    </div>
+    <div class="intro-field">
+      <label>Sleep quality</label>
+      <div class="rating-row" id="r-sleep-quality"></div>
+    </div>
+  </div>
+
+  <div class="intro-card">
+    <div class="intro-section-title">Upload documents <span style="font-size:10px;color:var(--text3);text-transform:none;font-weight:400;letter-spacing:0;">— optional</span></div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:12px;">Please include your most recent blood test results if available, and current physique photos. For physique photos, ideally take these weekly in the same location and lighting for consistency.</p>
+    <div id="upload-area" style="border:0.5px dashed var(--border2);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;background:var(--bg2);" onclick="document.getElementById('file-input').click()">
+      <div style="font-size:24px;margin-bottom:6px;">📎</div>
+      <div style="font-size:13px;color:var(--text2);">Tap to select files</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px;">PDF, JPG, PNG — up to 10MB each</div>
+    </div>
+    <input type="file" id="file-input" multiple accept=".pdf,.jpg,.jpeg,.png" style="display:none;"/>
+    <div id="file-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+  </div>
+
+  <div class="intro-card">
+    <div class="intro-section-title">Anything else</div>
+    <div class="intro-field"><label>Anything else you want George to know?</label><textarea id="i-notes" placeholder="Previous coaches, diet history, lifestyle, work schedule, stress levels..."></textarea></div>
+  </div>
+
+  <button class="submit-btn" id="intro-submit-btn" style="margin-top:16px;">Send to George &amp; start check-ins</button>
+</div>
+
+<!-- Main check-in form -->
+<div id="form-view" style="display:none;">
+  <div class="top-bar">
+    <h1>Jessica's daily check-in</h1>
+  </div>
+
+  <div class="date-nav">
+    <label>Date</label>
+    <input type="date" id="date-picker" onchange="loadEntry()"/>
+    <div class="date-nav-btns">
+      <button onclick="shiftDate(-1)">&#8592;</button>
+      <button onclick="shiftDate(1)">&#8594;</button>
+      <button class="today-btn" onclick="goToday()">Today</button>
+    </div>
+  </div>
+
+  <div id="already-banner" class="already-banner">
+    <div class="already-banner-title">Already submitted today</div>
+    <div class="already-banner-sub">You've already sent a check-in for this date. Do you want to update it, or log a different day?</div>
+    <div class="already-banner-btns">
+      <button onclick="dismissBanner()">&#8592; Change date</button>
+      <button class="edit-btn" onclick="editExisting()">Edit today's entry</button>
+    </div>
+  </div>
+
+  <div id="form-fields" style="display:none;">
+
+    <div class="card">
+      <div class="section-title"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>Body</div>
+      <div class="field">
+        <label>Weight (kg)</label>
+        <input type="number" id="f-weight" placeholder="e.g. 89.2" step="0.1" inputmode="decimal" oninput="validateWeight()"/>
+        <span class="field-hint" id="weight-hint"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Health markers</div>
+      <div class="two-col">
+        <div class="field"><label>Resting heart rate</label><input type="number" id="f-hr" placeholder="e.g. 62" inputmode="numeric" oninput="validateHR()"/><span class="field-hint" id="hr-hint"></span></div>
+        <div class="field"><label>Sleep (hours)</label><input type="number" id="f-sleep" placeholder="e.g. 7.5" step="0.5" inputmode="decimal" oninput="validateSleep()"/><span class="field-hint" id="sleep-hint"></span></div>
+      </div>
+      <div class="divider"></div>
+      <div class="sub-title">Blood pressure <span class="opt-label">— optional, a few times a week</span></div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:10px;">Try to take this a few times a week — morning, before training, while relaxed.</p>
+      <div class="two-col">
+        <div class="field"><label>Systolic (mmHg)</label><input type="number" id="f-bps" placeholder="e.g. 120" inputmode="numeric" oninput="validateBP()"/></div>
+        <div class="field"><label>Diastolic (mmHg)</label><input type="number" id="f-bpd" placeholder="e.g. 80" inputmode="numeric" oninput="validateBP()"/><span class="field-hint" id="bp-hint"></span></div>
+      </div>
+      <div class="divider"></div>
+      <div class="sub-title">Fasted glucose <span class="opt-label">— optional, weekly</span></div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:10px;">Check once a week, first thing in the morning before eating or drinking.</p>
+      <div class="field">
+        <label>Glucose (mmol/L)</label>
+        <input type="number" id="f-glucose" placeholder="e.g. 5.2" step="0.1" inputmode="decimal" oninput="validateGlucose()"/>
+        <span class="field-hint" id="glucose-hint"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>Nutrition</div>
+      <div class="two-col" style="margin-bottom:10px;">
+        <div class="field"><label>Calories</label><input type="number" id="f-cals" placeholder="e.g. 2400" inputmode="numeric" oninput="validateCals()"/><span class="field-hint" id="cals-hint"></span></div>
+        <div class="field"><label>Water (litres)</label><input type="number" id="f-water" placeholder="e.g. 3.0" step="0.5" inputmode="decimal"/></div>
+      </div>
+      <div class="two-col">
+        <div class="field"><label>Protein (g)</label><input type="number" id="f-protein" placeholder="e.g. 180" inputmode="numeric"/></div>
+        <div class="field"><label>Carbs (g)</label><input type="number" id="f-carbs" placeholder="e.g. 250" inputmode="numeric"/></div>
+      </div>
+      <div style="margin-top:10px;">
+        <div class="field"><label>Fats (g)</label><input type="number" id="f-fats" placeholder="e.g. 70" inputmode="numeric"/></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Activity</div>
+      <div class="two-col">
+        <div class="field"><label>Steps</label><input type="number" id="f-steps" placeholder="e.g. 8500" inputmode="numeric" oninput="validateSteps()"/><span class="field-hint" id="steps-hint"></span></div>
+        <div class="field"><label>Training today</label>
+          <select id="f-training">
+            <option value="">Rest / none</option>
+            <option>Upper body</option><option>Lower body</option><option>Push</option><option>Pull</option>
+            <option>Legs</option><option>Full body</option><option>Cardio</option><option>Active recovery</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Anabolics used today <span class="opt-label">— leave blank if none</span></div>
+      <div class="compound-header"><span>Compound</span><span>Dose (mg)</span><span></span></div>
+      <div id="anabolics-list"></div>
+      <button class="add-btn" id="btn-add-anabolic">+ Add compound</button>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>Peptides used today <span class="opt-label">— leave blank if none</span></div>
+      <div class="compound-header"><span>Peptide</span><span>Dose (mg)</span><span></span></div>
+      <div id="peptides-list"></div>
+      <button class="add-btn" id="btn-add-peptide">+ Add peptide</button>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>How are you feeling?</div>
+      <div class="mood-row">
+        <button class="mood-btn" data-v="1" onclick="setMood(1)">1<span class="mood-label">terrible</span></button>
+        <button class="mood-btn" data-v="2" onclick="setMood(2)">2<span class="mood-label">rough</span></button>
+        <button class="mood-btn" data-v="3" onclick="setMood(3)">3<span class="mood-label">ok</span></button>
+        <button class="mood-btn" data-v="4" onclick="setMood(4)">4<span class="mood-label">good</span></button>
+        <button class="mood-btn" data-v="5" onclick="setMood(5)">5<span class="mood-label">great</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Notes for George <span class="opt-label">— optional</span></div>
+      <div class="field"><textarea id="f-notes" placeholder="How did training go? Any symptoms, energy levels, joint pain, hunger, mood changes..."></textarea></div>
+    </div>
+
+    <button class="submit-btn" id="submit-btn">Send to coach</button>
+  </div>
+</div>
+
+<div id="success-view" class="success-screen">
+  <div class="tick">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27500a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <h2>Logged with George</h2>
+  <p id="success-msg">Your check-in has been recorded and logged with George.</p>
+  <button class="log-again-btn" id="back-btn">&#8592; Back</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAGjyhdituUusNdhRkfOPSY157niIzMt5c",
+  authDomain: "jason-coaching.firebaseapp.com",
+  projectId: "jason-coaching",
+  storageBucket: "jason-coaching.firebasestorage.app",
+  messagingSenderId: "689986672716",
+  appId: "1:689986672716:web:613f9d6b9ae8e542e27ce9"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+const CLIENT_ID = 'jessica';
+
+var introRatings = {energy:null, motivation:null, sleepQuality:null};
+
+function buildRatingRow(containerId, ratingKey, labels){
+  var container = document.getElementById(containerId);
+  if(!container) return;
+  labels.forEach(function(lbl, i){
+    var v = i+1;
+    var btn = document.createElement('button');
+    btn.className = 'rating-btn';
+    btn.type = 'button';
+    btn.innerHTML = v + '<span class="rating-lbl">'+lbl+'</span>';
+    btn.addEventListener('click', function(){
+      introRatings[ratingKey] = v;
+      container.querySelectorAll('.rating-btn').forEach(function(b){b.classList.remove('on');});
+      btn.classList.add('on');
+    });
+    container.appendChild(btn);
+  });
+}
+
+function buildFileList(){
+  var input = document.getElementById('file-input');
+  var listEl = document.getElementById('file-list');
+  if(!input||!listEl) return;
+  input.addEventListener('change', function(){
+    listEl.innerHTML = '';
+    Array.from(input.files).forEach(function(f){
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg2);border-radius:var(--radius);font-size:13px;';
+      row.innerHTML = '<span style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">📎 '+f.name+'</span><span style="color:var(--text3);font-size:11px;margin-left:8px;flex-shrink:0;">'+(f.size>1024*1024?(f.size/1024/1024).toFixed(1)+'MB':(f.size/1024).toFixed(0)+'KB')+'</span>';
+      listEl.appendChild(row);
+    });
+  });
+}
+
+var mood = null;
+var anabolicOptions = ['Testosterone Enanthate','Testosterone Cypionate','Testosterone Propionate','Anavar (Oxandrolone)','Primobolan (Methenolone)','Masteron (Drostanolone)','Trenbolone Acetate','Trenbolone Enanthate'];
+var peptideOptions = ['MOTS-C','SS-31','Klow (Klotho)','BPC-157','TB-500','CJC-1295','Ipamorelin','Sermorelin','Epithalon'];
+
+function pad(n){return n<10?'0'+n:n;}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function formatDate(str){var d=new Date(str+'T00:00:00');var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()];}
+
+function showOverlay(){document.getElementById('saving-overlay').classList.add('show');}
+function hideOverlay(){document.getElementById('saving-overlay').classList.remove('show');}
+
+function setMood(v){
+  mood=v;
+  document.querySelectorAll('.mood-btn').forEach(function(b){b.classList.toggle('on',parseInt(b.dataset.v)===v);});
+}
+
+function hint(id,type,msg){
+  var el=document.getElementById(id);
+  if(!el)return;
+  el.className='field-hint '+(type||'');
+  el.textContent=msg||'';
+}
+
+function validateWeight(){
+  var v=parseFloat(document.getElementById('f-weight').value);
+  var inp=document.getElementById('f-weight');
+  if(!v){hint('weight-hint','','');inp.classList.remove('err');return true;}
+  if(v<30||v>250){hint('weight-hint','err','That doesn\'t look right — double check this value.');inp.classList.add('err');return false;}
+  hint('weight-hint','','');inp.classList.remove('err');return true;
+}
+function validateHR(){var v=parseInt(document.getElementById('f-hr').value);if(!v){hint('hr-hint','','');return;}if(v<30||v>220)hint('hr-hint','err','Unusual value — please double check.');else hint('hr-hint','','');}
+function validateSleep(){var v=parseFloat(document.getElementById('f-sleep').value);if(!v){hint('sleep-hint','','');return;}if(v>24||v<0)hint('sleep-hint','err','Check this value.');else hint('sleep-hint','','');}
+function validateBP(){var s=parseInt(document.getElementById('f-bps').value);var d=parseInt(document.getElementById('f-bpd').value);if(!s&&!d){hint('bp-hint','','');return;}if(s&&(s<60||s>250)){hint('bp-hint','err','Systolic seems off — check the reading.');return;}if(d&&(d<40||d>150)){hint('bp-hint','err','Diastolic seems off — check the reading.');return;}hint('bp-hint','','');}
+function validateGlucose(){var v=parseFloat(document.getElementById('f-glucose').value);if(!v){hint('glucose-hint','','');return;}if(v<1||v>30)hint('glucose-hint','err','Check this value — seems unusual.');else hint('glucose-hint','','');}
+function validateCals(){var v=parseInt(document.getElementById('f-cals').value);if(!v){hint('cals-hint','','');return;}if(v<0||v>15000)hint('cals-hint','err','That doesn\'t look right — double check.');else hint('cals-hint','','');}
+function validateSteps(){var v=parseInt(document.getElementById('f-steps').value);if(!v){hint('steps-hint','','');return;}if(v>100000)hint('steps-hint','err','That seems very high — double check.');else hint('steps-hint','','');}
+
+function addCompound(listId,options,name,dose){
+  var list=document.getElementById(listId);
+  var row=document.createElement('div');row.className='compound-row';
+  var sel=document.createElement('select');
+  var blank=document.createElement('option');blank.value='';blank.textContent='— select —';sel.appendChild(blank);
+  options.forEach(function(o){var opt=document.createElement('option');opt.value=o;opt.textContent=o;sel.appendChild(opt);});
+  if(name)sel.value=name;
+  var inp=document.createElement('input');inp.type='number';inp.placeholder='e.g. 200';inp.inputMode='numeric';
+  if(dose)inp.value=dose;
+  var rm=document.createElement('button');rm.className='remove-btn';rm.textContent='×';rm.type='button';
+  rm.onclick=function(){list.removeChild(row);};
+  row.appendChild(sel);row.appendChild(inp);row.appendChild(rm);
+  list.appendChild(row);
+}
+
+function getCompounds(listId){
+  var out=[];
+  document.getElementById(listId).querySelectorAll('.compound-row').forEach(function(r){
+    var sel=r.querySelector('select'),inp=r.querySelector('input');
+    if(sel.value)out.push({name:sel.value,dose:inp.value||null});
+  });
+  return out;
+}
+function clearCompounds(listId){document.getElementById(listId).innerHTML='';}
+
+function populateForm(e){
+  if(e.weight)document.getElementById('f-weight').value=e.weight;
+  if(e.hr)document.getElementById('f-hr').value=e.hr;
+  if(e.sleep)document.getElementById('f-sleep').value=e.sleep;
+  if(e.bps)document.getElementById('f-bps').value=e.bps;
+  if(e.bpd)document.getElementById('f-bpd').value=e.bpd;
+  if(e.glucose)document.getElementById('f-glucose').value=e.glucose;
+  if(e.cals)document.getElementById('f-cals').value=e.cals;
+  if(e.water)document.getElementById('f-water').value=e.water;
+  if(e.protein)document.getElementById('f-protein').value=e.protein;
+  if(e.carbs)document.getElementById('f-carbs').value=e.carbs;
+  if(e.fats)document.getElementById('f-fats').value=e.fats;
+  if(e.steps)document.getElementById('f-steps').value=e.steps;
+  if(e.training)document.getElementById('f-training').value=e.training;
+  if(e.notes)document.getElementById('f-notes').value=e.notes;
+  if(e.mood)setMood(e.mood);
+  if(e.anabolics)e.anabolics.forEach(function(c){addCompound('anabolics-list',anabolicOptions,c.name,c.dose);});
+  if(e.peptides)e.peptides.forEach(function(c){addCompound('peptides-list',peptideOptions,c.name,c.dose);});
+}
+
+function clearForm(){
+  ['f-weight','f-hr','f-sleep','f-bps','f-bpd','f-glucose','f-cals','f-water','f-protein','f-carbs','f-fats','f-steps','f-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('f-training').value='';
+  mood=null;
+  document.querySelectorAll('.mood-btn').forEach(function(b){b.classList.remove('on');});
+  clearCompounds('anabolics-list');clearCompounds('peptides-list');
+  ['weight-hint','hr-hint','sleep-hint','bp-hint','glucose-hint','cals-hint','steps-hint'].forEach(function(id){hint(id,'','');});
+  document.querySelectorAll('.field input').forEach(function(i){i.classList.remove('err');});
+}
+
+function showBanner(){document.getElementById('already-banner').style.display='block';document.getElementById('form-fields').style.display='none';}
+function hideBanner(){document.getElementById('already-banner').style.display='none';}
+window.dismissBanner=function(){hideBanner();}
+window.editExisting=function(){hideBanner();document.getElementById('form-fields').style.display='block';}
+
+async function loadEntry(){
+  var date=document.getElementById('date-picker').value;
+  var today=todayStr();
+  clearForm();hideBanner();
+  try{
+    var snap=await getDoc(doc(db,'clients',CLIENT_ID,'checkins',date));
+    if(snap.exists()){
+      if(date===today){showBanner();return;}
+      populateForm(snap.data());
+    }
+  }catch(e){console.error('Load error',e);}
+  document.getElementById('form-fields').style.display='block';
+  document.getElementById('submit-btn').textContent=date===today?'Send to coach':'Save entry for '+formatDate(date);
+}
+
+window.loadEntry=loadEntry;
+window.shiftDate=function(dir){var dp=document.getElementById('date-picker');var d=new Date(dp.value+'T00:00:00');d.setDate(d.getDate()+dir);dp.value=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());loadEntry();}
+window.goToday=function(){document.getElementById('date-picker').value=todayStr();loadEntry();}
+window.backToForm=function(){document.getElementById('success-view').style.display='none';document.getElementById('form-view').style.display='block';loadEntry();}
+window.setMood=setMood;
+window.addCompound=addCompound;
+window.anabolicOptions=anabolicOptions;
+window.peptideOptions=peptideOptions;
+buildRatingRow('r-energy', 'energy', ['very low','low','ok','good','great']);
+buildRatingRow('r-motivation', 'motivation', ['very low','low','ok','good','great']);
+buildRatingRow('r-sleep-quality', 'sleepQuality', ['very poor','poor','ok','good','great']);
+buildFileList();
+document.getElementById('intro-submit-btn').addEventListener('click', function(){ window.submitIntro(); });
+document.getElementById('submit-btn').addEventListener('click', function(){ window.submitEntry(); });
+document.getElementById('back-btn').addEventListener('click', function(){ window.backToForm(); });
+document.getElementById('btn-add-anabolic').addEventListener('click',function(){addCompound('anabolics-list',anabolicOptions);});
+document.getElementById('btn-add-peptide').addEventListener('click',function(){addCompound('peptides-list',peptideOptions);});
+window.validateWeight=validateWeight;window.validateHR=validateHR;window.validateSleep=validateSleep;
+window.validateBP=validateBP;window.validateGlucose=validateGlucose;window.validateCals=validateCals;window.validateSteps=validateSteps;
+
+window.submitIntro=async function(){
+  var name=document.getElementById('i-name').value.trim();
+  if(!name){alert('Please enter your name.');return;}
+  var btn=document.getElementById('intro-submit-btn');
+  btn.disabled=true;btn.textContent='Saving...';
+  showOverlay();
+  try{
+    var uploadedFiles=[];
+    var files=document.getElementById('file-input').files;
+    if(files&&files.length>0){
+      btn.textContent='Uploading files...';
+      for(var fi=0;fi<files.length;fi++){
+        var file=files[fi];
+        if(file.size>10*1024*1024){alert(file.name+' is over 10MB — skipping.');continue;}
+        try{
+          var path='clients/'+CLIENT_ID+'/uploads/'+Date.now()+'_'+file.name;
+          var storageRef=ref(storage,path);
+          await uploadBytes(storageRef,file);
+          var url=await getDownloadURL(storageRef);
+          uploadedFiles.push({name:file.name,url:url,size:file.size,uploadedAt:new Date().toISOString()});
+        }catch(uploadErr){
+          console.error('File upload failed:',uploadErr);
+          var proceed=confirm('Could not upload '+file.name+' ('+uploadErr.message+'). Continue saving profile without this file?');
+          if(!proceed){
+            hideOverlay();
+            btn.disabled=false;btn.textContent='Send to George & start check-ins';
+            return;
+          }
+        }
+      }
+    }
+    btn.textContent='Saving profile...';
+    var profile={
+      name:name,
+      age:document.getElementById('i-age').value||null,
+      height:document.getElementById('i-height').value||null,
+      startWeight:document.getElementById('i-start-weight').value||null,
+      bf:document.getElementById('i-bf').value||null,
+      goal:document.getElementById('i-goal').value||null,
+      targetWeight:document.getElementById('i-target').value||null,
+      experience:document.getElementById('i-experience').value||null,
+      trainingDays:document.getElementById('i-days').value||null,
+      trainingStyle:document.getElementById('i-style').value||null,
+      currentSplit:document.getElementById('i-split').value||null,
+      cardio:document.getElementById('i-cardio').value||null,
+      injuries:document.getElementById('i-injuries').value||null,
+      medical:document.getElementById('i-medical').value||null,
+      medicalPast:document.getElementById('i-medical-past').value||null,
+      anabolicHistory:document.getElementById('i-anabolic-history').value||null,
+      supplements:document.getElementById('i-supplements').value||null,
+      energyLevel:introRatings.energy||null,
+      motivation:introRatings.motivation||null,
+      sleepQuality:introRatings.sleepQuality||null,
+      notes:document.getElementById('i-notes').value||null,
+      uploadedFiles:uploadedFiles,
+      completedAt:new Date().toISOString()
+    };
+    await setDoc(doc(db,'clients',CLIENT_ID,'profile','info'),profile);
+    localStorage.setItem('intro_done_'+CLIENT_ID,'1');
+    hideOverlay();
+    document.getElementById('intro-screen').style.display='none';
+    document.getElementById('form-view').style.display='block';
+    document.getElementById('date-picker').value=todayStr();
+    loadEntry();
+  }catch(e){
+    hideOverlay();
+    btn.disabled=false;btn.textContent='Send to George & start check-ins';
+    alert('Could not save — please check your connection and try again.');
+    console.error(e);
+  }
+}
+
+window.submitEntry=async function(){
+  if(!validateWeight())return;
+  var btn=document.getElementById('submit-btn');
+  btn.disabled=true;btn.textContent='Saving...';
+  showOverlay();
+  var date=document.getElementById('date-picker').value;
+  var entry={
+    date:date,ts:new Date().toISOString(),
+    weight:parseFloat(document.getElementById('f-weight').value)||null,
+    hr:parseInt(document.getElementById('f-hr').value)||null,
+    sleep:parseFloat(document.getElementById('f-sleep').value)||null,
+    bps:parseInt(document.getElementById('f-bps').value)||null,
+    bpd:parseInt(document.getElementById('f-bpd').value)||null,
+    glucose:parseFloat(document.getElementById('f-glucose').value)||null,
+    cals:parseInt(document.getElementById('f-cals').value)||null,
+    water:parseFloat(document.getElementById('f-water').value)||null,
+    protein:parseInt(document.getElementById('f-protein').value)||null,
+    carbs:parseInt(document.getElementById('f-carbs').value)||null,
+    fats:parseInt(document.getElementById('f-fats').value)||null,
+    steps:parseInt(document.getElementById('f-steps').value)||null,
+    training:document.getElementById('f-training').value||null,
+    mood:mood,
+    notes:document.getElementById('f-notes').value.trim()||null,
+    anabolics:getCompounds('anabolics-list'),
+    peptides:getCompounds('peptides-list')
+  };
+  try{
+    await setDoc(doc(db,'clients',CLIENT_ID,'checkins',date),entry);
+    var today=todayStr();
+    document.getElementById('success-msg').textContent=date===today
+      ?'Your check-in has been recorded and logged with George.'
+      :'Your check-in for '+formatDate(date)+' has been recorded and logged with George.';
+    hideOverlay();
+    document.getElementById('form-view').style.display='none';
+    document.getElementById('success-view').style.display='block';
+  }catch(e){
+    hideOverlay();
+    alert('Could not save — please check your connection and try again.');
+    console.error(e);
+  }
+  btn.disabled=false;btn.textContent='Send to coach';
+}
+
+async function init(){
+  var introDone=localStorage.getItem('intro_done_'+CLIENT_ID);
+  if(!introDone){
+    try{
+      var snap=await getDoc(doc(db,'clients',CLIENT_ID,'profile','info'));
+      if(snap.exists()){
+        localStorage.setItem('intro_done_'+CLIENT_ID,'1');
+        introDone=true;
+      }
+    }catch(e){}
+  }
+  if(!introDone){
+    document.getElementById('intro-screen').style.display='block';
+  } else {
+    document.getElementById('form-view').style.display='block';
+    document.getElementById('date-picker').value=todayStr();
+    loadEntry();
+  }
+}
+
+init();
+</script>
+</body>
+</html>
