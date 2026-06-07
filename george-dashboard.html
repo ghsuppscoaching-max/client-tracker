@@ -254,7 +254,8 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 const CLIENTS = [
   { id: 'jason',   name: 'Jason',        initials: 'JA' },
-  { id: 'jessica', name: 'Jessica Cass', initials: 'JC' }
+  { id: 'jessica', name: 'Jessica Cass', initials: 'JC' },
+  { id: 'ell',     name: 'Ell',          initials: 'EL' }
 ];
 var activeClientId = 'jason';
 function getClient(){ return CLIENTS.find(function(c){ return c.id===activeClientId; })||CLIENTS[0]; }
