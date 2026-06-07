@@ -232,29 +232,12 @@
         <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
         Wellbeing
       </div>
-      <div class="sub-title" style="margin-top:0;">Mood</div>
-      <div class="mood-row" style="margin-bottom:14px;">
+      <div class="mood-row">
         <button class="mood-btn" data-v="1" onclick="setRating('mood',1)">1<span class="mood-label">terrible</span></button>
         <button class="mood-btn" data-v="2" onclick="setRating('mood',2)">2<span class="mood-label">rough</span></button>
         <button class="mood-btn" data-v="3" onclick="setRating('mood',3)">3<span class="mood-label">ok</span></button>
         <button class="mood-btn" data-v="4" onclick="setRating('mood',4)">4<span class="mood-label">good</span></button>
         <button class="mood-btn" data-v="5" onclick="setRating('mood',5)">5<span class="mood-label">great</span></button>
-      </div>
-      <div class="sub-title">Pump quality</div>
-      <div class="mood-row" id="pump-row" style="margin-bottom:14px;">
-        <button class="mood-btn" data-g="pump" data-v="1" onclick="setRating('pump',1)">1<span class="mood-label">flat</span></button>
-        <button class="mood-btn" data-g="pump" data-v="2" onclick="setRating('pump',2)">2<span class="mood-label">low</span></button>
-        <button class="mood-btn" data-g="pump" data-v="3" onclick="setRating('pump',3)">3<span class="mood-label">ok</span></button>
-        <button class="mood-btn" data-g="pump" data-v="4" onclick="setRating('pump',4)">4<span class="mood-label">good</span></button>
-        <button class="mood-btn" data-g="pump" data-v="5" onclick="setRating('pump',5)">5<span class="mood-label">great</span></button>
-      </div>
-      <div class="sub-title">Libido</div>
-      <div class="mood-row" id="libido-row">
-        <button class="mood-btn" data-g="libido" data-v="1" onclick="setRating('libido',1)">1<span class="mood-label">very low</span></button>
-        <button class="mood-btn" data-g="libido" data-v="2" onclick="setRating('libido',2)">2<span class="mood-label">low</span></button>
-        <button class="mood-btn" data-g="libido" data-v="3" onclick="setRating('libido',3)">3<span class="mood-label">normal</span></button>
-        <button class="mood-btn" data-g="libido" data-v="4" onclick="setRating('libido',4)">4<span class="mood-label">high</span></button>
-        <button class="mood-btn" data-g="libido" data-v="5" onclick="setRating('libido',5)">5<span class="mood-label">very high</span></button>
       </div>
     </div>
 
@@ -284,7 +267,7 @@
 </div>
 
 <script>
-var ratings = { mood: null, pump: null, libido: null };
+var ratings = { mood: null };
 var anabolicOptions = ['Testosterone Enanthate','Testosterone Cypionate','Testosterone Propionate','Anavar (Oxandrolone)','Primobolan (Methenolone)','Masteron (Drostanolone)','Trenbolone Acetate','Trenbolone Enanthate'];
 var peptideOptions = ['MOTS-C','SS-31','Klow (Klotho)','BPC-157','TB-500','CJC-1295','Ipamorelin','Sermorelin','Epithalon'];
 
@@ -301,7 +284,7 @@ function setRating(group, val){
 }
 
 function clearRatings(){
-  ratings={mood:null,pump:null,libido:null};
+  ratings={mood:null};
   document.querySelectorAll('.mood-btn').forEach(function(b){ b.classList.remove('on'); });
 }
 
@@ -323,14 +306,12 @@ function validateHR(){
   var v=parseInt(document.getElementById('f-hr').value);
   if(!v){ hint('hr-hint','',''); return; }
   if(v<30||v>220) hint('hr-hint','err','Unusual value — please double check.');
-  else if(v>100) hint('hr-hint','warn','Above 100 bpm resting — worth noting.');
   else hint('hr-hint','','');
 }
 function validateSleep(){
   var v=parseFloat(document.getElementById('f-sleep').value);
   if(!v){ hint('sleep-hint','',''); return; }
   if(v>24||v<0) hint('sleep-hint','err','Check this value.');
-  else if(v<4) hint('sleep-hint','warn','Under 4 hours — recovery will be impacted.');
   else hint('sleep-hint','','');
 }
 function validateBP(){
@@ -339,24 +320,18 @@ function validateBP(){
   if(!s&&!d){ hint('bp-hint','',''); return; }
   if(s&&(s<60||s>250)){ hint('bp-hint','err','Systolic seems off — check the reading.'); return; }
   if(d&&(d<40||d>150)){ hint('bp-hint','err','Diastolic seems off — check the reading.'); return; }
-  if(s>=180||d>=120) hint('bp-hint','err','Very high — contact George immediately.');
-  else if(s>=140||d>=90) hint('bp-hint','warn','Stage 2 high — flag this to George.');
-  else if(s>=130||d>=80) hint('bp-hint','warn','Slightly elevated — keep an eye on this.');
-  else hint('bp-hint','','');
+  hint('bp-hint','','');
 }
 function validateGlucose(){
   var v=parseFloat(document.getElementById('f-glucose').value);
   if(!v){ hint('glucose-hint','',''); return; }
-  if(v<1||v>30){ hint('glucose-hint','err','Check this value — seems unusual.'); return; }
-  if(v>=7) hint('glucose-hint','warn','Above normal fasted range — flag to George.');
-  else if(v>=5.6) hint('glucose-hint','warn','Slightly elevated — worth monitoring.');
-  else hint('glucose-hint','note','Within normal fasted range.');
+  if(v<1||v>30) hint('glucose-hint','err','Check this value — seems unusual.');
+  else hint('glucose-hint','','');
 }
 function validateCals(){
   var v=parseInt(document.getElementById('f-cals').value);
   if(!v){ hint('cals-hint','',''); return; }
-  if(v<0||v>15000){ hint('cals-hint','err','That doesn\'t look right — double check.'); return; }
-  if(v>6000) hint('cals-hint','warn','Over 6000 kcal — is that correct?');
+  if(v<0||v>15000) hint('cals-hint','err','That doesn\'t look right — double check.');
   else hint('cals-hint','','');
 }
 function validateSteps(){
@@ -407,8 +382,6 @@ function populateForm(e){
   if(e.training) document.getElementById('f-training').value=e.training;
   if(e.notes) document.getElementById('f-notes').value=e.notes;
   if(e.mood) setRating('mood',e.mood);
-  if(e.pump) setRating('pump',e.pump);
-  if(e.libido) setRating('libido',e.libido);
   if(e.anabolics) e.anabolics.forEach(function(c){ addCompound('anabolics-list',anabolicOptions,c.name,c.dose); });
   if(e.peptides) e.peptides.forEach(function(c){ addCompound('peptides-list',peptideOptions,c.name,c.dose); });
 }
@@ -474,7 +447,7 @@ function submitEntry(){
     fats:parseInt(document.getElementById('f-fats').value)||null,
     steps:parseInt(document.getElementById('f-steps').value)||null,
     training:document.getElementById('f-training').value,
-    mood:ratings.mood, pump:ratings.pump, libido:ratings.libido,
+    mood:ratings.mood,
     notes:document.getElementById('f-notes').value.trim(),
     anabolics:getCompounds('anabolics-list'),
     peptides:getCompounds('peptides-list')
