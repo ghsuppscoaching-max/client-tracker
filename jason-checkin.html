@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Check-in" />
+<title>Jason — Daily check-in</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #efefec;
+    --text: #1a1a18;
+    --text2: #6b6b67;
+    --text3: #9e9e9a;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --radius: 10px;
+    --radius-lg: 14px;
+    --green-bg: #eaf3de;
+    --green-text: #27500a;
+    --green-border: rgba(99,153,34,0.3);
+    --warn-bg: #faeeda;
+    --warn-text: #633806;
+    --warn-border: rgba(186,117,23,0.3);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #262624;
+      --bg3: #303030;
+      --text: #f0f0ec;
+      --text2: #a0a09c;
+      --text3: #6a6a66;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.2);
+      --green-bg: #173404;
+      --green-text: #c0dd97;
+      --green-border: rgba(99,153,34,0.3);
+      --warn-bg: #412402;
+      --warn-text: #fac775;
+      --warn-border: rgba(186,117,23,0.3);
+    }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; padding: 0 0 40px; }
+  .top-bar { background: var(--bg); border-bottom: 0.5px solid var(--border); padding: 14px 20px 12px; text-align: center; position: sticky; top: 0; z-index: 10; }
+  .top-bar h1 { font-size: 17px; font-weight: 600; }
+  .top-bar p { font-size: 13px; color: var(--text2); margin-top: 2px; }
+  .card { background: var(--bg); border-radius: var(--radius-lg); margin: 14px 14px 0; padding: 16px; }
+  .section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .section-title svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 13px; color: var(--text2); }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 10px 12px; font-size: 16px;
+    background: var(--bg2); border: 0.5px solid var(--border);
+    border-radius: var(--radius); color: var(--text);
+    font-family: inherit; outline: none; -webkit-appearance: none; appearance: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--border2); }
+  .field textarea { resize: none; min-height: 80px; line-height: 1.5; }
+  .mood-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .mood-btn {
+    padding: 10px 2px; border: 0.5px solid var(--border); border-radius: var(--radius);
+    background: var(--bg2); cursor: pointer; font-size: 13px; color: var(--text2);
+    text-align: center; line-height: 1.4; font-family: inherit; -webkit-tap-highlight-color: transparent;
+  }
+  .mood-btn.on { background: var(--bg3); border-color: var(--border2); color: var(--text); font-weight: 600; }
+  .mood-label { font-size: 10px; display: block; margin-top: 2px; color: var(--text3); }
+  .submit-btn {
+    display: block; width: calc(100% - 28px); margin: 16px 14px 0;
+    padding: 16px; background: var(--text); color: var(--bg);
+    border: none; border-radius: var(--radius-lg); font-size: 16px;
+    font-weight: 600; cursor: pointer; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .submit-btn:active { opacity: 0.8; transform: scale(0.99); }
+  .submit-btn:disabled { opacity: 0.35; }
+  .already-notice {
+    background: var(--warn-bg); border: 0.5px solid var(--warn-border);
+    color: var(--warn-text); font-size: 13px; padding: 10px 14px;
+    border-radius: var(--radius); margin: 14px 14px 0; text-align: center;
+    display: none;
+  }
+  .success-screen { display: none; text-align: center; padding: 60px 30px; }
+  .success-screen .tick { width: 64px; height: 64px; background: var(--green-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+  .success-screen h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+  .success-screen p { font-size: 14px; color: var(--text2); line-height: 1.6; }
+  .log-again-btn { margin-top: 20px; padding: 12px 24px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: none; font-size: 14px; color: var(--text2); cursor: pointer; font-family: inherit; }
+  hr { border: none; border-top: 0.5px solid var(--border); margin: 14px 0 0; }
+  .opt-label { font-size: 11px; color: var(--text3); margin-left: 4px; }
+</style>
+</head>
+<body>
+
+<div id="form-view">
+  <div class="top-bar">
+    <h1>Jason's daily check-in</h1>
+    <p id="date-label"></p>
+  </div>
+
+  <div id="already-notice" class="already-notice">
+    You've already submitted today — this will update your entry.
+  </div>
+
+  <div class="card">
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      Body
+    </div>
+    <div class="two-col">
+      <div class="field"><label>Weight (kg)</label><input type="number" id="f-weight" placeholder="e.g. 89.2" step="0.1" inputmode="decimal" /></div>
+      <div class="field"><label>Body fat % <span class="opt-label">optional</span></label><input type="number" id="f-bf" placeholder="e.g. 18" step="0.1" inputmode="decimal" /></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Health markers
+    </div>
+    <div class="two-col">
+      <div class="field"><label>BP systolic (mmHg)</label><input type="number" id="f-bps" placeholder="e.g. 120" inputmode="numeric" /></div>
+      <div class="field"><label>BP diastolic (mmHg)</label><input type="number" id="f-bpd" placeholder="e.g. 80" inputmode="numeric" /></div>
+      <div class="field"><label>Resting heart rate</label><input type="number" id="f-hr" placeholder="e.g. 62" inputmode="numeric" /></div>
+      <div class="field"><label>Sleep (hours)</label><input type="number" id="f-sleep" placeholder="e.g. 7.5" step="0.5" inputmode="decimal" /></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+      Nutrition
+    </div>
+    <div class="two-col">
+      <div class="field"><label>Calories</label><input type="number" id="f-cals" placeholder="e.g. 2400" inputmode="numeric" /></div>
+      <div class="field"><label>Protein (g)</label><input type="number" id="f-protein" placeholder="e.g. 180" inputmode="numeric" /></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Activity
+    </div>
+    <div class="two-col">
+      <div class="field"><label>Steps</label><input type="number" id="f-steps" placeholder="e.g. 8500" inputmode="numeric" /></div>
+      <div class="field"><label>Training today</label>
+        <select id="f-training">
+          <option value="">Rest / none</option>
+          <option>Upper body</option>
+          <option>Lower body</option>
+          <option>Push</option>
+          <option>Pull</option>
+          <option>Legs</option>
+          <option>Full body</option>
+          <option>Cardio</option>
+          <option>Active recovery</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+      How are you feeling?
+    </div>
+    <div class="mood-row">
+      <button class="mood-btn" data-v="1" onclick="setMood(1)">1<span class="mood-label">terrible</span></button>
+      <button class="mood-btn" data-v="2" onclick="setMood(2)">2<span class="mood-label">rough</span></button>
+      <button class="mood-btn" data-v="3" onclick="setMood(3)">3<span class="mood-label">ok</span></button>
+      <button class="mood-btn" data-v="4" onclick="setMood(4)">4<span class="mood-label">good</span></button>
+      <button class="mood-btn" data-v="5" onclick="setMood(5)">5<span class="mood-label">great</span></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Notes for your coach <span class="opt-label">optional</span>
+    </div>
+    <div class="field">
+      <textarea id="f-notes" placeholder="How did training go? Any symptoms, joint pain, energy levels, hunger, anything worth flagging..."></textarea>
+    </div>
+  </div>
+
+  <button class="submit-btn" id="submit-btn" onclick="submitEntry()">Send to coach</button>
+</div>
+
+<div id="success-view" class="success-screen">
+  <div class="tick">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27500a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <h2>Check-in sent!</h2>
+  <p>Your coach can see today's data.<br>Good work — see you tomorrow.</p>
+  <button class="log-again-btn" onclick="resetForm()">Update today's entry</button>
+</div>
+
+<script>
+var mood = null;
+
+function pad(n){ return n < 10 ? '0'+n : n; }
+function todayStr(){
+  var d = new Date();
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+}
+
+function setMood(v){
+  mood = v;
+  document.querySelectorAll('.mood-btn').forEach(function(b){
+    b.classList.toggle('on', parseInt(b.dataset.v) === v);
+  });
+}
+
+function resetForm(){
+  document.getElementById('success-view').style.display = 'none';
+  document.getElementById('form-view').style.display = 'block';
+  document.getElementById('already-notice').style.display = 'block';
+}
+
+function getStorage(key){
+  try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch(e){ return null; }
+}
+function setStorage(key, val){
+  try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch(e){ return false; }
+}
+
+function init(){
+  var today = todayStr();
+  var d = new Date();
+  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('date-label').textContent = days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+
+  var existing = getStorage('checkin:'+today);
+  if(existing){
+    document.getElementById('already-notice').style.display = 'block';
+    if(existing.weight) document.getElementById('f-weight').value = existing.weight;
+    if(existing.bf) document.getElementById('f-bf').value = existing.bf;
+    if(existing.bps) document.getElementById('f-bps').value = existing.bps;
+    if(existing.bpd) document.getElementById('f-bpd').value = existing.bpd;
+    if(existing.hr) document.getElementById('f-hr').value = existing.hr;
+    if(existing.sleep) document.getElementById('f-sleep').value = existing.sleep;
+    if(existing.cals) document.getElementById('f-cals').value = existing.cals;
+    if(existing.protein) document.getElementById('f-protein').value = existing.protein;
+    if(existing.steps) document.getElementById('f-steps').value = existing.steps;
+    if(existing.training) document.getElementById('f-training').value = existing.training;
+    if(existing.notes) document.getElementById('f-notes').value = existing.notes;
+    if(existing.mood) setMood(existing.mood);
+  }
+}
+
+function submitEntry(){
+  var btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  var today = todayStr();
+  var entry = {
+    date: today,
+    ts: Date.now(),
+    weight: parseFloat(document.getElementById('f-weight').value) || null,
+    bf: parseFloat(document.getElementById('f-bf').value) || null,
+    bps: parseInt(document.getElementById('f-bps').value) || null,
+    bpd: parseInt(document.getElementById('f-bpd').value) || null,
+    hr: parseInt(document.getElementById('f-hr').value) || null,
+    sleep: parseFloat(document.getElementById('f-sleep').value) || null,
+    cals: parseInt(document.getElementById('f-cals').value) || null,
+    protein: parseInt(document.getElementById('f-protein').value) || null,
+    steps: parseInt(document.getElementById('f-steps').value) || null,
+    training: document.getElementById('f-training').value,
+    mood: mood,
+    notes: document.getElementById('f-notes').value.trim()
+  };
+
+  setStorage('checkin:'+today, entry);
+  var idx = getStorage('checkin_index') || [];
+  if(!idx.includes(today)){ idx.unshift(today); idx.sort(function(a,b){ return b.localeCompare(a); }); }
+  setStorage('checkin_index', idx);
+
+  setTimeout(function(){
+    document.getElementById('form-view').style.display = 'none';
+    document.getElementById('success-view').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Send to coach';
+  }, 400);
+}
+
+init();
+</script>
+</body>
+</html>
