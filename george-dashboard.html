@@ -517,22 +517,47 @@ async function renderProfile(){
   var p=await loadProfile();
   if(!p){el.innerHTML='<div class="no-data">No profile yet — Jason hasn\'t completed the intro form.</div>';return;}
   function row(label,val){return val?'<div class="profile-row"><div class="profile-label">'+label+'</div><div class="profile-value">'+val+'</div></div>':'';}
+  function stars(v){if(!v)return'—';var s='';for(var i=1;i<=5;i++)s+='<span style="color:'+(i<=v?'#BA7517':'var(--border2)')+';font-size:16px;">★</span>';return s+' <span style="font-size:12px;color:var(--text2);">('+v+'/5)</span>';}
+  var filesHtml='';
+  if(p.uploadedFiles&&p.uploadedFiles.length){
+    filesHtml='<div class="card" style="margin-top:14px;"><div class="card-title">Uploaded documents</div>'+
+      p.uploadedFiles.map(function(f){
+        return'<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border);">'+
+          '<div style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">📎 '+f.name+'</div>'+
+          '<a href="'+f.url+'" target="_blank" style="font-size:12px;color:var(--blue-text);margin-left:12px;white-space:nowrap;flex-shrink:0;">Download ↗</a>'+
+        '</div>';
+      }).join('')+
+    '</div>';
+  }
   el.innerHTML=
     '<div class="card">'+
       '<div class="card-title">Personal details</div>'+
       '<div class="profile-grid">'+
         '<div>'+row('Name',p.name)+row('Age',p.age?p.age+' years':null)+row('Height',p.height?p.height+' cm':null)+'</div>'+
-        '<div>'+row('Starting weight',p.startWeight?p.startWeight+' kg':null)+row('Target weight',p.targetWeight?p.targetWeight+' kg':null)+row('Goal',p.goal)+'</div>'+
+        '<div>'+row('Starting weight',p.startWeight?p.startWeight+' kg':null)+row('Est. body fat',p.bf?p.bf+'%':null)+row('Target weight',p.targetWeight?p.targetWeight+' kg':null)+row('Goal',p.goal)+'</div>'+
       '</div>'+
     '</div>'+
     '<div class="card" style="margin-top:14px;">'+
       '<div class="card-title">Training background</div>'+
       row('Experience',p.experience)+row('Training days',p.trainingDays)+row('Style',p.trainingStyle)+
+      row('Current split',p.currentSplit)+row('Cardio',p.cardio)+
     '</div>'+
     '<div class="card" style="margin-top:14px;">'+
       '<div class="card-title">Health &amp; history</div>'+
-      row('Injuries / limitations',p.injuries)+row('Medical conditions',p.medical)+row('Additional notes',p.notes)+
+      row('Injuries / limitations',p.injuries)+
+      row('Current medical conditions',p.medical)+
+      row('Past medical conditions',p.medicalPast)+
+      row('Past anabolic experience',p.anabolicHistory)+
+      row('Daily supplements',p.supplements)+
     '</div>'+
+    '<div class="card" style="margin-top:14px;">'+
+      '<div class="card-title">Wellbeing at intake</div>'+
+      '<div class="profile-row"><div class="profile-label">Energy levels</div><div class="profile-value">'+stars(p.energyLevel)+'</div></div>'+
+      '<div class="profile-row"><div class="profile-label">Motivation</div><div class="profile-value">'+stars(p.motivation)+'</div></div>'+
+      '<div class="profile-row"><div class="profile-label">Sleep quality</div><div class="profile-value">'+stars(p.sleepQuality)+'</div></div>'+
+    '</div>'+
+    (p.notes?'<div class="card" style="margin-top:14px;"><div class="card-title">Additional notes</div><div style="font-size:13px;line-height:1.6;color:var(--text);">'+p.notes+'</div></div>':'')+
+    filesHtml+
     (p.completedAt?'<div style="font-size:11px;color:var(--text3);margin-top:10px;">Submitted '+new Date(p.completedAt).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'</div>':'');
 }
 
