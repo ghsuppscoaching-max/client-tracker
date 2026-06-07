@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>George — Coach dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -15,8 +16,7 @@
   --green:#639922;--green-bg:#eaf3de;--green-text:#27500a;
   --amber:#BA7517;--amber-bg:#faeeda;--amber-text:#633806;
   --red:#E24B4A;--red-bg:#fcebeb;--red-text:#791f1f;
-  --teal:#1D9E75;--teal-bg:#e1f5ee;--teal-text:#085041;
-  --purple:#7F77DD;
+  --teal:#1D9E75;--purple:#7F77DD;
 }
 @media(prefers-color-scheme:dark){
   :root{
@@ -27,7 +27,6 @@
     --green-bg:#173404;--green-text:#c0dd97;
     --amber-bg:#412402;--amber-text:#fac775;
     --red-bg:#501313;--red-text:#f09595;
-    --teal-bg:#04342c;--teal-text:#9fe1cb;
   }
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
@@ -40,9 +39,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .tbtn{padding:5px 11px;border:0.5px solid var(--border2);border-radius:6px;background:none;font-size:12px;color:var(--text2);cursor:pointer;font-family:inherit;}
 .tbtn:hover{background:var(--surface2);}
 .tbtn.active{background:var(--text);color:var(--bg);border-color:var(--text);}
-.tbtn-sm{font-size:11px;color:var(--text3);}
+.tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border);background:var(--surface);padding:0 20px;}
+.tab{padding:10px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;}
+.tab.active{color:var(--text);border-bottom-color:var(--text);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
 .main{padding:18px 20px;max-width:1100px;}
-.section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;}
+.section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:18px;}
 .stat-card{background:var(--surface2);border-radius:var(--radius);padding:12px 14px;}
 .stat-label{font-size:11px;color:var(--text3);margin-bottom:3px;}
@@ -58,7 +61,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px;font-size:12px;color:var(--text2);}
 .ldot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle;}
 .log-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;}
-.log-table th{text-align:left;padding:5px 8px;font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;border-bottom:0.5px solid var(--border);}
+.log-table th{text-align:left;padding:5px 8px;font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.05em;border-bottom:0.5px solid var(--border);}
 .log-table td{padding:7px 8px;border-bottom:0.5px solid var(--border);color:var(--text);vertical-align:top;}
 .log-table tr:last-child td{border-bottom:none;}
 .log-table tr:hover td{background:var(--surface2);}
@@ -66,10 +69,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .badge-blue{background:var(--blue-bg);color:var(--blue-text);}
 .badge-green{background:var(--green-bg);color:var(--green-text);}
 .badge-red{background:var(--red-bg);color:var(--red-text);}
-.compound-pill{background:var(--surface2);border-radius:var(--radius);padding:9px 12px;font-size:13px;}
-.compound-name{font-weight:500;margin-bottom:1px;}
-.compound-dose{font-size:11px;color:var(--text3);}
-.compounds-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:7px;}
 .mood-bar-row{display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:5px;}
 .mood-bar-label{width:24px;color:var(--text3);text-align:right;flex-shrink:0;}
 .mood-bar-bg{flex:1;background:var(--surface2);border-radius:4px;height:14px;overflow:hidden;}
@@ -84,8 +83,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .note-row{padding:9px 11px;background:var(--surface2);border-radius:var(--radius);}
 .note-date{font-size:11px;color:var(--text3);margin-bottom:2px;}
 .note-text{font-size:13px;line-height:1.5;}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.profile-row{display:flex;flex-direction:column;gap:3px;padding:10px 0;border-bottom:0.5px solid var(--border);}
+.profile-row:last-child{border-bottom:none;}
+.profile-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;}
+.profile-value{font-size:14px;color:var(--text);}
+.loading-state{padding:3rem;text-align:center;color:var(--text3);font-size:13px;}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
 <body>
 
@@ -93,20 +97,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="topbar-left">
     <div class="avatar">JA</div>
     <div>
-      <div class="topbar-title">Jason — coach dashboard</div>
+      <div class="topbar-title" id="topbar-name">Jason — coach dashboard</div>
       <div class="topbar-sub" id="last-updated">Loading...</div>
-    </div>
-    <div style="margin-left:16px;padding-left:16px;border-left:0.5px solid var(--border);display:flex;flex-direction:column;gap:2px;">
-      <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;">7-day avg weight</div>
-      <div style="display:flex;align-items:baseline;gap:6px;">
-        <span style="font-size:20px;font-weight:500;color:var(--text);" id="rolling-weight">—</span>
-        <span style="font-size:11px;" id="rolling-delta"></span>
-      </div>
     </div>
   </div>
   <div class="topbar-right">
-    <button class="tbtn tbtn-sm" onclick="loadDemoData()">Load demo data</button>
-    <button class="tbtn tbtn-sm" onclick="clearData()">Clear data</button>
     <button class="tbtn active" id="btn7" onclick="setRange(7,'btn7')">7d</button>
     <button class="tbtn" id="btn14" onclick="setRange(14,'btn14')">14d</button>
     <button class="tbtn" id="btn28" onclick="setRange(28,'btn28')">28d</button>
@@ -114,268 +109,243 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<div class="main">
-  <div class="section-label" style="margin-top:4px;">Overview</div>
-  <div class="stats-grid" id="stats-grid"></div>
-
-  <div class="two-col">
-    <div class="card">
-      <div class="card-title">Weight <span class="card-title-note">kg</span></div>
-      <div class="chart-wrap" style="height:170px;"><canvas id="c-weight"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Daily steps</div>
-      <div class="chart-wrap" style="height:170px;"><canvas id="c-steps"></canvas></div>
-    </div>
-  </div>
-
-  <div class="two-col" style="margin-top:14px;">
-    <div class="card">
-      <div class="card-title">Calories <span class="card-title-note">kcal/day</span></div>
-      <div class="chart-wrap" style="height:150px;"><canvas id="c-cals"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Macros <span class="card-title-note">avg g/day</span></div>
-      <div class="chart-wrap" style="height:170px;"><canvas id="c-macros"></canvas></div>
-    </div>
-  </div>
-
-  <div class="two-col" style="margin-top:14px;">
-    <div class="card">
-      <div class="card-title">Blood pressure <span class="card-title-note">mmHg</span></div>
-      <div class="legend" id="leg-bp"></div>
-      <div class="chart-wrap" style="height:140px;"><canvas id="c-bp"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Heart rate &amp; sleep</div>
-      <div class="legend" id="leg-health"></div>
-      <div class="chart-wrap" style="height:140px;"><canvas id="c-health"></canvas></div>
-    </div>
-  </div>
-
-  <div class="two-col" style="margin-top:14px;">
-    <div class="card">
-      <div class="card-title">Fasted glucose <span class="card-title-note">mmol/L</span></div>
-      <div class="chart-wrap" style="height:130px;"><canvas id="c-glucose"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Water intake <span class="card-title-note">litres/day</span></div>
-      <div class="chart-wrap" style="height:130px;"><canvas id="c-water"></canvas></div>
-    </div>
-  </div>
-
-  <div class="two-col" style="margin-top:14px;">
-    <div class="card">
-      <div class="card-title">Mood distribution</div>
-      <div id="mood-bars"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Check-in streak <span class="card-title-note" id="streak-label"></span></div>
-      <div class="streak-wrap" id="streak-grid"></div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:14px;">
-    <div class="card-title">Active compounds &amp; peptides</div>
-    <div id="compounds-display"></div>
-  </div>
-
-  <div class="card" style="margin-top:14px;">
-    <div class="card-title">Recent notes from Jason</div>
-    <div id="notes-list"></div>
-  </div>
-
-  <div class="card" style="margin-top:14px;">
-    <div class="card-title">Full log</div>
-    <div style="overflow-x:auto;">
-      <table class="log-table">
-        <thead><tr>
-          <th style="width:64px">Date</th>
-          <th style="width:58px">Weight</th>
-          <th style="width:60px">Cals</th>
-          <th style="width:52px">Pro</th>
-          <th style="width:52px">Carbs</th>
-          <th style="width:44px">Fat</th>
-          <th style="width:60px">Steps</th>
-          <th style="width:66px">BP</th>
-          <th style="width:46px">HR</th>
-          <th style="width:46px">Sleep</th>
-          <th style="width:48px">Mood</th>
-          <th style="width:80px">Training</th>
-          <th>Notes</th>
-        </tr></thead>
-        <tbody id="log-tbody"></tbody>
-      </table>
-    </div>
-  </div>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab" onclick="switchTab('compounds')">Compounds</button>
+  <button class="tab" onclick="switchTab('log')">Full log</button>
+  <button class="tab" onclick="switchTab('profile')">Client profile</button>
 </div>
 
-<script>
+<div class="main">
+
+  <!-- OVERVIEW TAB -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="section-label" style="margin-top:4px;">Overview</div>
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Weight <span class="card-title-note">kg</span></div>
+        <div class="legend"><span><span class="ldot" style="background:#378ADD"></span>Daily</span><span><span class="ldot" style="background:#E24B4A"></span>7d rolling avg</span></div>
+        <div class="chart-wrap" style="height:170px;"><canvas id="c-weight"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Daily steps</div>
+        <div class="chart-wrap" style="height:190px;"><canvas id="c-steps"></canvas></div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:14px;">
+      <div class="card">
+        <div class="card-title">Calories <span class="card-title-note">kcal/day — coloured by macro</span></div>
+        <div class="chart-wrap" style="height:150px;"><canvas id="c-cals"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Macros <span class="card-title-note">avg g/day</span></div>
+        <div class="chart-wrap" style="height:170px;"><canvas id="c-macros"></canvas></div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:14px;">
+      <div class="card">
+        <div class="card-title">Blood pressure <span class="card-title-note">mmHg</span></div>
+        <div class="legend" id="leg-bp"></div>
+        <div class="chart-wrap" style="height:140px;"><canvas id="c-bp"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Heart rate &amp; sleep</div>
+        <div class="legend" id="leg-health"></div>
+        <div class="chart-wrap" style="height:140px;"><canvas id="c-health"></canvas></div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:14px;">
+      <div class="card">
+        <div class="card-title">Fasted glucose <span class="card-title-note">mmol/L</span></div>
+        <div class="chart-wrap" style="height:130px;"><canvas id="c-glucose"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Water intake <span class="card-title-note">litres/day</span></div>
+        <div class="chart-wrap" style="height:130px;"><canvas id="c-water"></canvas></div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:14px;">
+      <div class="card">
+        <div class="card-title">Mood distribution</div>
+        <div id="mood-bars"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Check-in streak <span class="card-title-note" id="streak-label"></span></div>
+        <div class="streak-wrap" id="streak-grid"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <div class="card-title">Recent notes from Jason</div>
+      <div id="notes-list"></div>
+    </div>
+  </div>
+
+  <!-- COMPOUNDS TAB -->
+  <div class="tab-panel" id="tab-compounds">
+    <div class="card" style="margin-top:4px;">
+      <div class="card-title">Compounds &amp; peptides</div>
+      <div id="compounds-display"></div>
+    </div>
+  </div>
+
+  <!-- LOG TAB -->
+  <div class="tab-panel" id="tab-log">
+    <div class="card" style="margin-top:4px;">
+      <div class="card-title">Full log</div>
+      <div style="overflow-x:auto;">
+        <table class="log-table">
+          <thead><tr>
+            <th style="width:64px">Date</th><th style="width:58px">Weight</th><th style="width:60px">Cals</th>
+            <th style="width:52px">Pro</th><th style="width:52px">Carbs</th><th style="width:44px">Fat</th>
+            <th style="width:60px">Steps</th><th style="width:66px">BP</th><th style="width:46px">HR</th>
+            <th style="width:46px">Sleep</th><th style="width:48px">Mood</th><th style="width:80px">Training</th><th>Notes</th>
+          </tr></thead>
+          <tbody id="log-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE TAB -->
+  <div class="tab-panel" id="tab-profile">
+    <div id="profile-content" class="loading-state">Loading client profile...</div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAGjyhdituUusNdhRkfOPSY157niIzMt5c",
+  authDomain: "jason-coaching.firebaseapp.com",
+  projectId: "jason-coaching",
+  storageBucket: "jason-coaching.firebasestorage.app",
+  messagingSenderId: "689986672716",
+  appId: "1:689986672716:web:613f9d6b9ae8e542e27ce9"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const CLIENT_ID = 'jason';
+
 var currentRange = 7;
+var allLogs = [];
 var charts = {};
+var selectedCompound = null;
 
 function pad(n){return n<10?'0'+n:n;}
-function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function fmtDate(s){var d=new Date(s+'T00:00:00');var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+m[d.getMonth()];}
-function gS(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
-function sS(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 function avg(arr){var f=arr.filter(function(x){return x!=null&&!isNaN(x)&&x!==0;});return f.length?f.reduce(function(a,b){return a+b;},0)/f.length:null;}
 function tc(){return window.matchMedia('(prefers-color-scheme:dark)').matches?'#a0a09c':'#6b6b67';}
 function gc(){return window.matchMedia('(prefers-color-scheme:dark)').matches?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)';}
-
-function xAxis(){return {ticks:{color:tc(),font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:8},grid:{color:gc()},border:{display:false}};}
+function xAxis(){return{ticks:{color:tc(),font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:8},grid:{color:gc()},border:{display:false}};}
 function yAxis(cb){var o={ticks:{color:tc(),font:{size:10}},grid:{color:gc()},border:{display:false}};if(cb)o.ticks.callback=cb;return o;}
-function noLegend(){return {legend:{display:false}};}
+function noLegend(){return{legend:{display:false}};}
 
 function mkChart(id,cfg){
   if(charts[id]){charts[id].destroy();delete charts[id];}
-  var el=document.getElementById(id);
-  if(!el)return;
-  try{charts[id]=new Chart(el,cfg);}catch(e){console.error('Chart error on '+id,e);}
+  var el=document.getElementById(id);if(!el)return;
+  try{charts[id]=new Chart(el,cfg);}catch(e){console.error('Chart error',id,e);}
+}
+function noData(id,msg){var el=document.getElementById(id);if(el)el.parentElement.innerHTML='<div class="no-data">'+(msg||'No data')+'</div>';}
+
+function getLogs(range){
+  if(range>=9000)return allLogs.slice();
+  var cutoff=new Date();cutoff.setDate(cutoff.getDate()-(range-1));
+  var cs=cutoff.getFullYear()+'-'+pad(cutoff.getMonth()+1)+'-'+pad(cutoff.getDate());
+  return allLogs.filter(function(l){return l.date>=cs;});
 }
 
-function noData(id,msg){
-  var el=document.getElementById(id);
-  if(el)el.parentElement.innerHTML='<div class="no-data">'+(msg||'No data')+'</div>';
+async function loadAllLogs(){
+  try{
+    var q=query(collection(db,'clients',CLIENT_ID,'checkins'),orderBy('date','asc'));
+    var snap=await getDocs(q);
+    allLogs=[];
+    snap.forEach(function(d){allLogs.push(d.data());});
+    allLogs.sort(function(a,b){return a.date.localeCompare(b.date);});
+    return true;
+  }catch(e){console.error('Load logs error',e);return false;}
 }
 
-function loadLogs(range){
-  var idx=gS('checkin_index')||[];
-  var logs=[];
-  var cutoff='';
-  if(range<9000){var c=new Date();c.setDate(c.getDate()-(range-1));cutoff=c.getFullYear()+'-'+pad(c.getMonth()+1)+'-'+pad(c.getDate());}
-  idx.forEach(function(ds){
-    if(cutoff&&ds<cutoff)return;
-    var e=gS('checkin:'+ds);
-    if(e)logs.push(e);
-  });
-  logs.sort(function(a,b){return a.date.localeCompare(b.date);});
-  return logs;
+async function loadProfile(){
+  try{
+    var snap=await getDoc(doc(db,'clients',CLIENT_ID,'profile','info'));
+    return snap.exists()?snap.data():null;
+  }catch(e){return null;}
 }
 
-function clearData(){
-  var idx=gS('checkin_index')||[];
-  idx.forEach(function(ds){localStorage.removeItem('checkin:'+ds);});
-  localStorage.removeItem('checkin_index');
-  render();
-}
-
-function loadDemoData(){
-  clearData();
-  var today=new Date();
-  var newIdx=[];
-  var w=88.5;
-  for(var i=27;i>=0;i--){
-    if(Math.random()<0.12)continue;
-    var d=new Date(today);d.setDate(d.getDate()-i);
-    var ds=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
-    w+=(Math.random()-0.52)*0.25;
-    var entry={
-      date:ds,ts:Date.now(),__demo:true,
-      weight:Math.round(w*10)/10,
-      hr:Math.round(58+Math.random()*12),
-      sleep:Math.round((6.5+Math.random()*2)*2)/2,
-      bps:i%3===0?Math.round(118+Math.random()*18):null,
-      bpd:i%3===0?Math.round(74+Math.random()*10):null,
-      glucose:i%7===0?Math.round((4.8+Math.random()*0.8)*10)/10:null,
-      cals:Math.round(2200+Math.random()*600),
-      water:Math.round((2.5+Math.random()*1.5)*2)/2,
-      protein:Math.round(170+Math.random()*40),
-      carbs:Math.round(200+Math.random()*80),
-      fats:Math.round(60+Math.random()*30),
-      steps:Math.round(6000+Math.random()*7000),
-      training:['Upper body','Lower body','Push','Pull','Legs','','Cardio',''][Math.floor(Math.random()*8)],
-      mood:Math.floor(3+Math.random()*3),
-      notes:i%5===0?['Felt strong today, energy was high.','Joints a bit stiff, poor sleep last night.','Great session, pumps were excellent.','Feeling flat, hunger lower than usual.','Solid day, hit all targets.'][Math.floor(Math.random()*5)]:'',
-      anabolics:[{name:'Testosterone Enanthate',dose:'250'}],
-      peptides:i%3===0?[{name:'BPC-157',dose:'0.25'}]:[]
-    };
-    sS('checkin:'+ds,entry);
-    newIdx.push(ds);
-  }
-  newIdx.sort(function(a,b){return b.localeCompare(a);});
-  sS('checkin_index',newIdx);
-  render();
-}
-
-function setRange(r,btnId){
+window.setRange=function(r,btnId){
   currentRange=r;
   ['btn7','btn14','btn28','btnall'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el)el.classList.toggle('active',id===btnId);
+    var el=document.getElementById(id);if(el)el.classList.toggle('active',id===btnId);
   });
   render();
+}
+
+window.switchTab=function(name){
+  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',['overview','compounds','log','profile'][i]===name);});
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.toggle('active',p.id==='tab-'+name);});
+  if(name==='profile')renderProfile();
 }
 
 function render(){
-  try{
-    var logs=loadLogs(currentRange);
-    var all=loadLogs(9999);
-
-    if(all.length>0){
-      var last=all[all.length-1];
-      var ld=new Date(last.date+'T00:00:00');
-      document.getElementById('last-updated').textContent='Last check-in: '+ld.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
-    } else {
-      document.getElementById('last-updated').textContent='No entries yet — click "Load demo data" to preview';
-    }
-
-    renderStats(logs);
-    renderRollingWeight();
-    renderWeight(logs);
-    renderSteps(logs);
-    renderCals(logs);
-    renderMacros(logs);
-    renderBP(logs);
-    renderHealth(logs);
-    renderGlucose(all);
-    renderWater(logs);
-    renderMood(logs);
-    renderStreak(all);
-    renderCompounds(logs);
-    renderNotes(all);
-    renderTable(logs);
-  } catch(e){
-    console.error('Render error:',e);
-    document.getElementById('last-updated').textContent='Error loading data — check console';
+  var logs=getLogs(currentRange);
+  if(allLogs.length>0){
+    var last=allLogs[allLogs.length-1];
+    var ld=new Date(last.date+'T00:00:00');
+    document.getElementById('last-updated').textContent='Last check-in: '+ld.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+  } else {
+    document.getElementById('last-updated').textContent='No entries yet';
   }
-}
-
-function renderRollingWeight(){
-  var all=loadLogs(9999);
-  var ws=all.filter(function(l){return l.weight;});
-  if(ws.length<2){document.getElementById('rolling-weight').textContent='—';document.getElementById('rolling-delta').textContent='';return;}
-  var last7=ws.slice(-7);
-  var prev7=ws.slice(-14,-7);
-  var avg7=last7.reduce(function(a,l){return a+l.weight;},0)/last7.length;
-  var avgPrev=prev7.length?prev7.reduce(function(a,l){return a+l.weight;},0)/prev7.length:null;
-  document.getElementById('rolling-weight').textContent=avg7.toFixed(2)+' kg';
-  if(avgPrev){
-    var delta=avg7-avgPrev;
-    var el=document.getElementById('rolling-delta');
-    el.textContent=(delta>0?'+':'')+delta.toFixed(2)+' kg vs prev 7d';
-    el.style.color=delta<0?'#639922':delta>0?'#E24B4A':'#9e9e9a';
-  }
+  try{renderStats(logs);}catch(e){console.error(e);}
+  try{renderWeight(logs);}catch(e){console.error(e);}
+  try{renderSteps(logs);}catch(e){console.error(e);}
+  try{renderCals(logs);}catch(e){console.error(e);}
+  try{renderMacros(logs);}catch(e){console.error(e);}
+  try{renderBP(logs);}catch(e){console.error(e);}
+  try{renderHealth(logs);}catch(e){console.error(e);}
+  try{renderGlucose(allLogs);}catch(e){console.error(e);}
+  try{renderWater(logs);}catch(e){console.error(e);}
+  try{renderMood(logs);}catch(e){console.error(e);}
+  try{renderStreak(allLogs);}catch(e){console.error(e);}
+  try{renderCompounds(logs);}catch(e){console.error(e);}
+  try{renderNotes(allLogs);}catch(e){console.error(e);}
+  try{renderTable(logs);}catch(e){console.error(e);}
 }
 
 function renderStats(logs){
   var el=document.getElementById('stats-grid');
-  if(!logs.length){el.innerHTML='<div class="no-data" style="grid-column:1/-1">No data in this range — try a wider range or load demo data</div>';return;}
+  if(!logs.length){el.innerHTML='<div class="no-data" style="grid-column:1/-1">No data in this range</div>';return;}
   var ws=logs.filter(function(l){return l.weight;}).map(function(l){return l.weight;});
   var lw=ws.length?ws[ws.length-1]:null;
   var fw=ws.length?ws[0]:null;
   var wdelta=lw&&fw&&ws.length>1?lw-fw:null;
+  var allWs=allLogs.filter(function(l){return l.weight;});
+  var last7w=allWs.slice(-7);var prev7w=allWs.slice(-14,-7);
+  var avg7=last7w.length?last7w.reduce(function(a,l){return a+l.weight;},0)/last7w.length:null;
+  var avgP7=prev7w.length?prev7w.reduce(function(a,l){return a+l.weight;},0)/prev7w.length:null;
+  var rollingDelta=avg7&&avgP7?avg7-avgP7:null;
   var ac=avg(logs.map(function(l){return l.cals;}));
   var as=avg(logs.map(function(l){return l.steps;}));
   var asl=avg(logs.map(function(l){return l.sleep;}));
   var bpe=logs.filter(function(l){return l.bps&&l.bpd;});
   var lbp=bpe.length?bpe[bpe.length-1]:null;
-  function dHtml(v,unit,lowerBetter){
-    if(v===null||v===undefined)return '';
-    var cls=v===0?'':'delta-'+(lowerBetter?(v<0?'up':'down'):(v>0?'up':'down'));
-    return '<div class="stat-delta '+cls+'">'+(v>0?'+':'')+v.toFixed(1)+' '+unit+'</div>';
+  function dHtml(v,unit,lb){
+    if(v===null||v===undefined)return'';
+    var cls=v===0?'':'delta-'+(lb?(v<0?'up':'down'):(v>0?'up':'down'));
+    return'<div class="stat-delta '+cls+'">'+(v>0?'+':'')+v.toFixed(2)+' '+unit+'</div>';
   }
   var cards=[
+    {l:'7-day avg weight',v:avg7?avg7.toFixed(2)+' kg':'—',x:dHtml(rollingDelta,'kg vs prev 7d',true)},
     {l:'Current weight',v:lw?lw.toFixed(1)+' kg':'—',x:dHtml(wdelta,'kg',true)},
     {l:'Avg calories',v:ac?Math.round(ac).toLocaleString()+' kcal':'—',x:''},
     {l:'Avg steps',v:as?Math.round(as).toLocaleString():'—',x:''},
@@ -383,123 +353,76 @@ function renderStats(logs){
     {l:'Latest BP',v:lbp?lbp.bps+'/'+lbp.bpd+' mmHg':'—',x:''},
     {l:'Check-ins',v:logs.length+' logged',x:''},
   ];
-  el.innerHTML=cards.map(function(c){return '<div class="stat-card"><div class="stat-label">'+c.l+'</div><div class="stat-value">'+c.v+'</div>'+c.x+'</div>';}).join('');
+  el.innerHTML=cards.map(function(c){return'<div class="stat-card"><div class="stat-label">'+c.l+'</div><div class="stat-value">'+c.v+'</div>'+c.x+'</div>';}).join('');
 }
 
 function renderWeight(logs){
   var pts=logs.filter(function(l){return l.weight;});
   if(!pts.length){noData('c-weight','No weight logged');return;}
-  mkChart('c-weight',{type:'line',data:{
-    labels:pts.map(function(l){return fmtDate(l.date);}),
-    datasets:[{label:'Weight',data:pts.map(function(l){return l.weight;}),borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.07)',tension:0.35,pointRadius:3,pointBackgroundColor:'#378ADD',fill:true,borderWidth:2}]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis(function(v){return v+' kg';})}}});
+  var labels=pts.map(function(l){return fmtDate(l.date);});
+  var weights=pts.map(function(l){return l.weight;});
+  var rolling=weights.map(function(_,i){var s=weights.slice(Math.max(0,i-6),i+1);return Math.round(s.reduce(function(a,b){return a+b;},0)/s.length*100)/100;});
+  mkChart('c-weight',{type:'line',data:{labels:labels,datasets:[
+    {label:'Daily weight',data:weights,borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.07)',tension:0.35,pointRadius:3,pointBackgroundColor:'#378ADD',fill:true,borderWidth:2,order:2},
+    {label:'7d rolling avg',data:rolling,borderColor:'#E24B4A',backgroundColor:'transparent',tension:0.4,pointRadius:0,borderWidth:2,borderDash:[5,3],order:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:function(ctx){return ctx.datasetIndex===0?'Daily: '+ctx.parsed.y.toFixed(1)+' kg':'7d avg: '+ctx.parsed.y.toFixed(2)+' kg';}}}},scales:{x:xAxis(),y:yAxis(function(v){return v+' kg';})}}});
 }
 
 function renderSteps(logs){
   var pts=logs.filter(function(l){return l.steps;});
   if(!pts.length){noData('c-steps','No steps logged');return;}
-  mkChart('c-steps',{type:'bar',data:{
-    labels:pts.map(function(l){return fmtDate(l.date);}),
-    datasets:[{label:'Steps',data:pts.map(function(l){return l.steps;}),backgroundColor:pts.map(function(l){return l.steps>=10000?'#639922':'#378ADD';}),borderRadius:3,borderSkipped:false}]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis(function(v){return v>=1000?Math.round(v/1000)+'k':v;})}}});
+  mkChart('c-steps',{type:'bar',data:{labels:pts.map(function(l){return fmtDate(l.date);}),datasets:[{label:'Steps',data:pts.map(function(l){return l.steps;}),backgroundColor:pts.map(function(l){return l.steps>=10000?'#639922':'#378ADD';}),borderRadius:3,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis(function(v){return v>=1000?Math.round(v/1000)+'k':v;})}}});
 }
 
 function renderCals(logs){
   var pts=logs.filter(function(l){return l.cals;});
   if(!pts.length){noData('c-cals','No calories logged');return;}
   var labels=pts.map(function(l){return fmtDate(l.date);});
-  function kcal(l){
-    var p=(l.protein||0)*4;
-    var c=(l.carbs||0)*4;
-    var f=(l.fats||0)*9;
-    var total=p+c+f;
-    if(!total)return{p:l.cals,c:0,f:0};
-    var scale=l.cals/total;
-    return{p:Math.round(p*scale),c:Math.round(c*scale),f:Math.round(f*scale)};
-  }
+  function kcal(l){var p=(l.protein||0)*4;var c=(l.carbs||0)*4;var f=(l.fats||0)*9;var tot=p+c+f;if(!tot)return{p:l.cals,c:0,f:0};var sc=l.cals/tot;return{p:Math.round(p*sc),c:Math.round(c*sc),f:Math.round(f*sc)};}
   var hasMacros=pts.some(function(l){return l.protein||l.carbs||l.fats;});
-  if(!hasMacros){
-    mkChart('c-cals',{type:'bar',data:{
-      labels:labels,
-      datasets:[{label:'Calories',data:pts.map(function(l){return l.cals;}),backgroundColor:'rgba(55,138,221,0.7)',borderRadius:3,borderSkipped:false}]
-    },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis()}}});
-    return;
-  }
-  mkChart('c-cals',{type:'bar',data:{
-    labels:labels,
-    datasets:[
-      {label:'Protein',data:pts.map(function(l){return kcal(l).p;}),backgroundColor:'#378ADD',stack:'s'},
-      {label:'Carbs',data:pts.map(function(l){return kcal(l).c;}),backgroundColor:'#1D9E75',stack:'s'},
-      {label:'Fat',data:pts.map(function(l){return kcal(l).f;}),backgroundColor:'#BA7517',stack:'s'}
-    ]
-  },options:{responsive:true,maintainAspectRatio:false,
+  if(!hasMacros){mkChart('c-cals',{type:'bar',data:{labels:labels,datasets:[{label:'Calories',data:pts.map(function(l){return l.cals;}),backgroundColor:'rgba(55,138,221,0.7)',borderRadius:3,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis()}}});return;}
+  mkChart('c-cals',{type:'bar',data:{labels:labels,datasets:[
+    {label:'Protein',data:pts.map(function(l){return kcal(l).p;}),backgroundColor:'#378ADD',stack:'s'},
+    {label:'Carbs',data:pts.map(function(l){return kcal(l).c;}),backgroundColor:'#1D9E75',stack:'s'},
+    {label:'Fat',data:pts.map(function(l){return kcal(l).f;}),backgroundColor:'#BA7517',stack:'s'}
+  ]},options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:true,position:'top',labels:{color:tc(),font:{size:11},padding:10,boxWidth:10,boxHeight:10}},
-      tooltip:{callbacks:{footer:function(items){var t=items.reduce(function(a,i){return a+i.parsed.y;},0);return 'Total: '+t+' kcal';}}}},
+      tooltip:{callbacks:{label:function(ctx){var total=ctx.chart.data.datasets.reduce(function(s,ds){return s+(ds.data[ctx.dataIndex]||0);},0);var pct=total?Math.round(ctx.parsed.y/total*100):0;return ctx.dataset.label+': '+ctx.parsed.y+' kcal ('+pct+'%)';},footer:function(items){var t=items.reduce(function(a,i){return a+i.parsed.y;},0);return'Total: '+t+' kcal';}}}},
     scales:{x:xAxis(),y:yAxis(function(v){return v+' kcal';})}}});
 }
 
 function renderMacros(logs){
-  var p=avg(logs.map(function(l){return l.protein;}));
-  var c=avg(logs.map(function(l){return l.carbs;}));
-  var f=avg(logs.map(function(l){return l.fats;}));
+  var p=avg(logs.map(function(l){return l.protein;}));var c=avg(logs.map(function(l){return l.carbs;}));var f=avg(logs.map(function(l){return l.fats;}));
   if(!p&&!c&&!f){noData('c-macros','No macro data');return;}
-  mkChart('c-macros',{type:'doughnut',data:{
-    labels:['Protein','Carbs','Fats'],
-    datasets:[{data:[Math.round(p||0),Math.round(c||0),Math.round(f||0)],backgroundColor:['#378ADD','#1D9E75','#BA7517'],borderWidth:0,hoverOffset:4}]
-  },options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:true,position:'bottom',labels:{color:tc(),font:{size:11},padding:10,boxWidth:10,boxHeight:10}},tooltip:{callbacks:{label:function(ctx){return ctx.label+': '+ctx.parsed+'g';}}}}}});
+  mkChart('c-macros',{type:'doughnut',data:{labels:['Protein','Carbs','Fats'],datasets:[{data:[Math.round(p||0),Math.round(c||0),Math.round(f||0)],backgroundColor:['#378ADD','#1D9E75','#BA7517'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:true,position:'bottom',labels:{color:tc(),font:{size:11},padding:10,boxWidth:10,boxHeight:10}},tooltip:{callbacks:{label:function(ctx){return ctx.label+': '+ctx.parsed+'g';}}}}}});
 }
 
 function renderBP(logs){
   var pts=logs.filter(function(l){return l.bps&&l.bpd;});
-  document.getElementById('leg-bp').innerHTML='<span><span class="ldot" style="background:#E24B4A"></span>Systolic</span><span><span class="ldot" style="background:#BA7517;"></span>Diastolic</span>';
-  if(!pts.length){noData('c-bp','No BP data — optional field');return;}
-  mkChart('c-bp',{type:'line',data:{
-    labels:pts.map(function(l){return fmtDate(l.date);}),
-    datasets:[
-      {label:'Systolic',data:pts.map(function(l){return l.bps;}),borderColor:'#E24B4A',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2},
-      {label:'Diastolic',data:pts.map(function(l){return l.bpd;}),borderColor:'#BA7517',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2,borderDash:[4,3]}
-    ]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis()}}});
+  document.getElementById('leg-bp').innerHTML='<span><span class="ldot" style="background:#E24B4A"></span>Systolic</span><span><span class="ldot" style="background:#BA7517"></span>Diastolic</span>';
+  if(!pts.length){noData('c-bp','No BP data');return;}
+  mkChart('c-bp',{type:'line',data:{labels:pts.map(function(l){return fmtDate(l.date);}),datasets:[{label:'Systolic',data:pts.map(function(l){return l.bps;}),borderColor:'#E24B4A',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2},{label:'Diastolic',data:pts.map(function(l){return l.bpd;}),borderColor:'#BA7517',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2,borderDash:[4,3]}]},options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis()}}});
 }
 
 function renderHealth(logs){
-  var hp=logs.filter(function(l){return l.hr;});
-  var sp=logs.filter(function(l){return l.sleep;});
+  var hp=logs.filter(function(l){return l.hr;});var sp=logs.filter(function(l){return l.sleep;});
   document.getElementById('leg-health').innerHTML='<span><span class="ldot" style="background:#7F77DD"></span>Heart rate (bpm)</span><span><span class="ldot" style="background:#1D9E75"></span>Sleep (h)</span>';
-  if(!hp.length&&!sp.length){noData('c-health','No HR/sleep data');return;}
-  var dates={};
-  hp.forEach(function(l){dates[l.date]=dates[l.date]||{};dates[l.date].hr=l.hr;});
-  sp.forEach(function(l){dates[l.date]=dates[l.date]||{};dates[l.date].sleep=l.sleep;});
+  if(!hp.length&&!sp.length){noData('c-health','No data');return;}
+  var dates={};hp.forEach(function(l){dates[l.date]=dates[l.date]||{};dates[l.date].hr=l.hr;});sp.forEach(function(l){dates[l.date]=dates[l.date]||{};dates[l.date].sleep=l.sleep;});
   var keys=Object.keys(dates).sort();
-  mkChart('c-health',{type:'line',data:{
-    labels:keys.map(fmtDate),
-    datasets:[
-      {label:'HR',data:keys.map(function(k){return dates[k].hr||null;}),borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2,yAxisID:'yL',spanGaps:true},
-      {label:'Sleep',data:keys.map(function(k){return dates[k].sleep||null;}),borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2,yAxisID:'yR',borderDash:[4,3],spanGaps:true}
-    ]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{
-    x:xAxis(),
-    yL:{ticks:{color:tc(),font:{size:10},callback:function(v){return v+' bpm';}},grid:{color:gc()},border:{display:false},position:'left'},
-    yR:{ticks:{color:tc(),font:{size:10},callback:function(v){return v+'h';}},grid:{display:false},border:{display:false},position:'right'}
-  }}});
+  mkChart('c-health',{type:'line',data:{labels:keys.map(fmtDate),datasets:[{label:'HR',data:keys.map(function(k){return dates[k].hr||null;}),borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2,yAxisID:'yL',spanGaps:true},{label:'Sleep',data:keys.map(function(k){return dates[k].sleep||null;}),borderColor:'#1D9E75',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2,yAxisID:'yR',borderDash:[4,3],spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),yL:{ticks:{color:tc(),font:{size:10},callback:function(v){return v+' bpm';}},grid:{color:gc()},border:{display:false},position:'left'},yR:{ticks:{color:tc(),font:{size:10},callback:function(v){return v+'h';}},grid:{display:false},border:{display:false},position:'right'}}}});
 }
 
 function renderGlucose(all){
   var pts=all.filter(function(l){return l.glucose;});
   if(!pts.length){noData('c-glucose','No glucose data yet');return;}
-  mkChart('c-glucose',{type:'line',data:{
-    labels:pts.map(function(l){return fmtDate(l.date);}),
-    datasets:[{label:'Glucose',data:pts.map(function(l){return l.glucose;}),borderColor:'#BA7517',backgroundColor:'rgba(186,117,23,0.07)',tension:0.3,pointRadius:4,borderWidth:2,fill:true}]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis(function(v){return v+' mmol';})}}});
+  mkChart('c-glucose',{type:'line',data:{labels:pts.map(function(l){return fmtDate(l.date);}),datasets:[{label:'Glucose',data:pts.map(function(l){return l.glucose;}),borderColor:'#BA7517',backgroundColor:'rgba(186,117,23,0.07)',tension:0.3,pointRadius:4,borderWidth:2,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis(function(v){return v+' mmol';})}}});
 }
 
 function renderWater(logs){
   var pts=logs.filter(function(l){return l.water;});
-  if(!pts.length){noData('c-water','No water data logged');return;}
-  mkChart('c-water',{type:'bar',data:{
-    labels:pts.map(function(l){return fmtDate(l.date);}),
-    datasets:[{label:'Water',data:pts.map(function(l){return l.water;}),backgroundColor:'rgba(29,158,117,0.7)',borderRadius:3,borderSkipped:false}]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis(function(v){return v+'L';})}}});
+  if(!pts.length){noData('c-water','No water data');return;}
+  mkChart('c-water',{type:'bar',data:{labels:pts.map(function(l){return fmtDate(l.date);}),datasets:[{label:'Water',data:pts.map(function(l){return l.water;}),backgroundColor:'rgba(29,158,117,0.7)',borderRadius:3,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis(function(v){return v+'L';})}}});
 }
 
 function renderMood(logs){
@@ -509,60 +432,72 @@ function renderMood(logs){
   var el=document.getElementById('mood-bars');
   if(!total){el.innerHTML='<div class="no-data">No mood data</div>';return;}
   var colors={1:'#E24B4A',2:'#BA7517',3:'#888780',4:'#1D9E75',5:'#378ADD'};
-  el.innerHTML=[5,4,3,2,1].map(function(v){
-    var pct=Math.round(counts[v]/total*100);
-    return '<div class="mood-bar-row"><div class="mood-bar-label">'+v+'</div><div class="mood-bar-bg"><div class="mood-bar-fill" style="width:'+pct+'%;background:'+colors[v]+'"></div></div><div class="mood-bar-ct">'+counts[v]+'</div></div>';
-  }).join('');
+  el.innerHTML=[5,4,3,2,1].map(function(v){var pct=Math.round(counts[v]/total*100);return'<div class="mood-bar-row"><div class="mood-bar-label">'+v+'</div><div class="mood-bar-bg"><div class="mood-bar-fill" style="width:'+pct+'%;background:'+colors[v]+'"></div></div><div class="mood-bar-ct">'+counts[v]+'</div></div>';}).join('');
 }
 
 function renderStreak(all){
-  var logged={};
-  all.forEach(function(l){logged[l.date]=true;});
+  var logged={};all.forEach(function(l){logged[l.date]=true;});
   var today=new Date();var days=[];
   for(var i=27;i>=0;i--){var d=new Date(today);d.setDate(d.getDate()-i);days.push(d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()));}
-  var streak=0;
-  for(var j=days.length-1;j>=0;j--){if(logged[days[j]])streak++;else break;}
+  var streak=0;for(var j=days.length-1;j>=0;j--){if(logged[days[j]])streak++;else break;}
   document.getElementById('streak-label').textContent=streak+' day streak';
-  document.getElementById('streak-grid').innerHTML=days.map(function(ds){
-    return '<div class="sd '+(logged[ds]?'sd-on':'sd-off')+'" title="'+ds+'"></div>';
-  }).join('');
+  document.getElementById('streak-grid').innerHTML=days.map(function(ds){return'<div class="sd '+(logged[ds]?'sd-on':'sd-off')+'" title="'+ds+'"></div>';}).join('');
+}
+
+function buildCompoundMap(logs){
+  var map={};
+  logs.forEach(function(l){
+    function add(arr,type){if(!arr)return;arr.forEach(function(c){if(!c.name)return;if(!map[c.name])map[c.name]={type:type,entries:[]};map[c.name].entries.push({date:l.date,dose:c.dose});});}
+    add(l.anabolics,'Anabolic');add(l.peptides,'Peptide');
+  });
+  return map;
 }
 
 function renderCompounds(logs){
+  var map=buildCompoundMap(allLogs);
+  var keys=Object.keys(map);
   var el=document.getElementById('compounds-display');
-  var rows=logs.filter(function(l){
-    return (l.anabolics&&l.anabolics.length)||(l.peptides&&l.peptides.length);
-  }).slice().reverse();
-  if(!rows.length){el.innerHTML='<div class="no-data">No compounds logged in this period</div>';return;}
-  var h='<div style="overflow-x:auto;"><table class="log-table" style="min-width:500px;">';
-  h+='<thead><tr><th style="width:80px">Date</th><th style="width:100px">Type</th><th>Compound</th><th style="width:80px">Dose (mg)</th></tr></thead><tbody>';
-  rows.forEach(function(l){
-    var d=new Date(l.date+'T00:00:00');
-    var ds=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
-    var items=[];
-    if(l.anabolics)l.anabolics.forEach(function(c){if(c.name)items.push({type:'Anabolic',name:c.name,dose:c.dose,cls:'badge-red'});});
-    if(l.peptides)l.peptides.forEach(function(c){if(c.name)items.push({type:'Peptide',name:c.name,dose:c.dose,cls:'badge-blue'});});
-    items.forEach(function(it,i){
-      h+='<tr>';
-      h+='<td>'+(i===0?ds:'')+'</td>';
-      h+='<td><span class="badge '+it.cls+'">'+it.type+'</span></td>';
-      h+='<td style="font-weight:500;">'+it.name+'</td>';
-      h+='<td>'+it.dose+' mg</td>';
-      h+='</tr>';
-    });
-  });
-  h+='</tbody></table></div>';
-  el.innerHTML=h;
+  if(!keys.length){el.innerHTML='<div class="no-data">No compounds logged</div>';return;}
+  if(!selectedCompound||!map[selectedCompound])selectedCompound=keys[0];
+  var pills=keys.map(function(k){
+    var isActive=k===selectedCompound;
+    var bg=isActive?(map[k].type==='Anabolic'?'#E24B4A':'#378ADD'):'var(--surface2)';
+    var col=isActive?'#fff':'var(--text2)';
+    return'<button onclick="window.selectCompound(\''+k+'\')" style="padding:6px 12px;border:0.5px solid var(--border2);border-radius:20px;background:'+bg+';color:'+col+';font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">'+k+'</button>';
+  }).join('');
+  var entries=map[selectedCompound].entries;
+  var periodDates=logs.map(function(l){return l.date;});
+  var periodEntries=entries.filter(function(e){return periodDates.indexOf(e.date)>-1;});
+  var dosed=periodEntries.filter(function(e){return e.dose&&parseFloat(e.dose)>0;});
+  var freqPct=periodDates.length?Math.round(periodEntries.length/periodDates.length*100):0;
+  var avgDose=dosed.length?Math.round(dosed.reduce(function(a,e){return a+(parseFloat(e.dose)||0);},0)/dosed.length):0;
+  var rangeLabel=currentRange>=9000?'all time':(currentRange+'d');
+  var doseByDate={};entries.forEach(function(e){doseByDate[e.date]=parseFloat(e.dose)||0;});
+  var capturedDates=periodDates.slice();var capturedDoseByDate=doseByDate;
+  el.innerHTML=
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">'+pills+'</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">'+
+      '<div class="stat-card"><div class="stat-label">Days used ('+rangeLabel+')</div><div class="stat-value">'+periodEntries.length+'</div></div>'+
+      '<div class="stat-card"><div class="stat-label">Frequency ('+rangeLabel+')</div><div class="stat-value">'+freqPct+'%</div></div>'+
+      '<div class="stat-card"><div class="stat-label">Avg dose ('+rangeLabel+')</div><div class="stat-value">'+avgDose+' mg</div></div>'+
+    '</div>'+
+    '<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Dosing — '+rangeLabel+'</div>'+
+    '<div style="position:relative;width:100%;height:100px;"><canvas id="c-compound-freq"></canvas></div>';
+  setTimeout(function(){
+    var cCtx=document.getElementById('c-compound-freq');if(!cCtx)return;
+    if(charts['c-compound-freq']){charts['c-compound-freq'].destroy();delete charts['c-compound-freq'];}
+    var isAna=map[selectedCompound].type==='Anabolic';
+    charts['c-compound-freq']=new Chart(cCtx,{type:'bar',data:{labels:capturedDates.map(fmtDate),datasets:[{label:selectedCompound,data:capturedDates.map(function(d){return capturedDoseByDate[d]||0;}),backgroundColor:capturedDates.map(function(d){return capturedDoseByDate[d]?(isAna?'rgba(226,75,74,0.8)':'rgba(55,138,221,0.8)'):'rgba(150,150,150,0.1)';}),borderRadius:2,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.parsed.y?ctx.parsed.y+' mg':'Not used';},title:function(items){return capturedDates[items[0].dataIndex];}}}},scales:{x:{ticks:{color:tc(),font:{size:9},maxRotation:45,autoSkip:true,maxTicksLimit:12},grid:{display:false},border:{display:false}},y:{ticks:{color:tc(),font:{size:10},callback:function(v){return v?v+'mg':''}},grid:{color:gc()},border:{display:false},min:0}}}});
+  },50);
 }
+
+window.selectCompound=function(name){selectedCompound=name;renderCompounds(getLogs(currentRange));}
 
 function renderNotes(all){
   var wn=all.filter(function(l){return l.notes&&l.notes.trim();}).slice(-6).reverse();
   var el=document.getElementById('notes-list');
   if(!wn.length){el.innerHTML='<div class="no-data">No notes yet</div>';return;}
-  el.innerHTML='<div class="notes-list">'+wn.map(function(l){
-    var d=new Date(l.date+'T00:00:00');
-    return '<div class="note-row"><div class="note-date">'+d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</div><div class="note-text">'+l.notes+'</div></div>';
-  }).join('')+'</div>';
+  el.innerHTML='<div class="notes-list">'+wn.map(function(l){var d=new Date(l.date+'T00:00:00');return'<div class="note-row"><div class="note-date">'+d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</div><div class="note-text">'+l.notes+'</div></div>';}).join('')+'</div>';
 }
 
 function renderTable(logs){
@@ -570,40 +505,47 @@ function renderTable(logs){
   var rev=logs.slice().reverse();
   if(!rev.length){tb.innerHTML='<tr><td colspan="13" style="text-align:center;padding:1.5rem;color:var(--text3);">No entries in this range</td></tr>';return;}
   tb.innerHTML=rev.map(function(l){
-    var dd=new Date(l.date+'T00:00:00');
-    var ds=dd.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    var dd=new Date(l.date+'T00:00:00');var ds=dd.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
     var mb=l.mood?'<span class="badge '+(l.mood>=4?'badge-green':l.mood<=2?'badge-red':'badge-blue')+'">'+l.mood+'</span>':'—';
-    return '<tr>'
-      +'<td>'+ds+'</td>'
-      +'<td>'+(l.weight?l.weight+' kg':'—')+'</td>'
-      +'<td>'+(l.cals?l.cals.toLocaleString():'—')+'</td>'
-      +'<td>'+(l.protein?l.protein+'g':'—')+'</td>'
-      +'<td>'+(l.carbs?l.carbs+'g':'—')+'</td>'
-      +'<td>'+(l.fats?l.fats+'g':'—')+'</td>'
-      +'<td>'+(l.steps?l.steps.toLocaleString():'—')+'</td>'
-      +'<td>'+(l.bps&&l.bpd?l.bps+'/'+l.bpd:'—')+'</td>'
-      +'<td>'+(l.hr?l.hr:'—')+'</td>'
-      +'<td>'+(l.sleep?l.sleep+'h':'—')+'</td>'
-      +'<td>'+mb+'</td>'
-      +'<td style="font-size:11px;">'+(l.training||'—')+'</td>'
-      +'<td style="font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(l.notes||'—')+'</td>'
-      +'</tr>';
+    return'<tr><td>'+ds+'</td><td>'+(l.weight?l.weight+' kg':'—')+'</td><td>'+(l.cals?l.cals.toLocaleString():'—')+'</td><td>'+(l.protein?l.protein+'g':'—')+'</td><td>'+(l.carbs?l.carbs+'g':'—')+'</td><td>'+(l.fats?l.fats+'g':'—')+'</td><td>'+(l.steps?l.steps.toLocaleString():'—')+'</td><td>'+(l.bps&&l.bpd?l.bps+'/'+l.bpd:'—')+'</td><td>'+(l.hr?l.hr:'—')+'</td><td>'+(l.sleep?l.sleep+'h':'—')+'</td><td>'+mb+'</td><td style="font-size:11px;">'+(l.training||'—')+'</td><td style="font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(l.notes||'—')+'</td></tr>';
   }).join('');
 }
 
-function init(){
-  if(typeof Chart === 'undefined'){
-    setTimeout(init, 50);
-    return;
-  }
-  var idx = gS('checkin_index');
-  if(!idx || !idx.length){
-    loadDemoData();
-  } else {
-    render();
-  }
+async function renderProfile(){
+  var el=document.getElementById('profile-content');
+  el.innerHTML='<div class="loading-state">Loading...</div>';
+  var p=await loadProfile();
+  if(!p){el.innerHTML='<div class="no-data">No profile yet — Jason hasn\'t completed the intro form.</div>';return;}
+  function row(label,val){return val?'<div class="profile-row"><div class="profile-label">'+label+'</div><div class="profile-value">'+val+'</div></div>':'';}
+  el.innerHTML=
+    '<div class="card">'+
+      '<div class="card-title">Personal details</div>'+
+      '<div class="profile-grid">'+
+        '<div>'+row('Name',p.name)+row('Age',p.age?p.age+' years':null)+row('Height',p.height?p.height+' cm':null)+'</div>'+
+        '<div>'+row('Starting weight',p.startWeight?p.startWeight+' kg':null)+row('Target weight',p.targetWeight?p.targetWeight+' kg':null)+row('Goal',p.goal)+'</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="card" style="margin-top:14px;">'+
+      '<div class="card-title">Training background</div>'+
+      row('Experience',p.experience)+row('Training days',p.trainingDays)+row('Style',p.trainingStyle)+
+    '</div>'+
+    '<div class="card" style="margin-top:14px;">'+
+      '<div class="card-title">Health &amp; history</div>'+
+      row('Injuries / limitations',p.injuries)+row('Medical conditions',p.medical)+row('Additional notes',p.notes)+
+    '</div>'+
+    (p.completedAt?'<div style="font-size:11px;color:var(--text3);margin-top:10px;">Submitted '+new Date(p.completedAt).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'</div>':'');
 }
-init();
+
+async function init(){
+  document.getElementById('last-updated').textContent='Loading data...';
+  var ok=await loadAllLogs();
+  if(!ok){document.getElementById('last-updated').textContent='Error loading data — check connection';return;}
+  render();
+  setInterval(async function(){await loadAllLogs();render();},30000);
+}
+
+if(typeof Chart!=='undefined'){init();}
+else{var t=setInterval(function(){if(typeof Chart!=='undefined'){clearInterval(t);init();}},50);}
 </script>
 </body>
 </html>
