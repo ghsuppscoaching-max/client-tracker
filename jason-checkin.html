@@ -81,6 +81,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .saving-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);align-items:center;justify-content:center;z-index:100;}
 .saving-overlay.show{display:flex;}
 .saving-box{background:var(--bg);border-radius:var(--radius-lg);padding:24px 32px;text-align:center;font-size:14px;color:var(--text2);}
+/* Rating rows */
+.rating-row{display:flex;gap:6px;}
+.rating-btn{flex:1;padding:9px 2px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg2);cursor:pointer;font-size:13px;color:var(--text2);text-align:center;line-height:1.4;font-family:inherit;}
+.rating-btn.on{background:var(--bg3);border-color:var(--border2);color:var(--text);font-weight:600;}
+.rating-lbl{font-size:10px;display:block;margin-top:2px;color:var(--text3);}
 /* Intro screen */
 .intro-screen{min-height:100vh;background:var(--bg3);padding:0 0 48px;}
 .intro-hero{background:var(--bg);padding:32px 20px 24px;text-align:center;border-bottom:0.5px solid var(--border);}
@@ -114,6 +119,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="intro-field"><label>Age</label><input type="number" id="i-age" placeholder="e.g. 28" inputmode="numeric"/></div>
       <div class="intro-field"><label>Height (cm)</label><input type="number" id="i-height" placeholder="e.g. 180" inputmode="numeric"/></div>
       <div class="intro-field"><label>Starting weight (kg)</label><input type="number" id="i-start-weight" placeholder="e.g. 90" step="0.1" inputmode="decimal"/></div>
+      <div class="intro-field"><label>Estimated body fat %</label><input type="number" id="i-bf" placeholder="e.g. 18" step="0.1" inputmode="decimal"/></div>
+      <div class="intro-field"><label>Target weight (kg) <span style="font-size:10px;color:var(--text3);">optional</span></label><input type="number" id="i-target" placeholder="e.g. 80" step="0.1" inputmode="decimal"/></div>
     </div>
     <div class="intro-field"><label>Goal</label>
       <select id="i-goal">
@@ -125,7 +132,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <option>Maintenance</option>
       </select>
     </div>
-    <div class="intro-field"><label>Target weight (kg) <span style="font-size:10px;color:var(--text3);">optional</span></label><input type="number" id="i-target" placeholder="e.g. 80" step="0.1" inputmode="decimal"/></div>
   </div>
 
   <div class="intro-card">
@@ -158,16 +164,54 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <option>Cardio focused</option>
       </select>
     </div>
+    <div class="intro-field"><label>Current training split</label><textarea id="i-split" placeholder="e.g. Mon — chest/tris, Tue — back/bis, Wed — rest, Thu — legs, Fri — shoulders..."></textarea></div>
+    <div class="intro-field"><label>Cardio on a typical week</label><textarea id="i-cardio" placeholder="e.g. 3x 30min incline walks, 1x 20min HIIT..."></textarea></div>
   </div>
 
   <div class="intro-card">
     <div class="intro-section-title">Health &amp; history</div>
     <div class="intro-field"><label>Any injuries or physical limitations?</label><textarea id="i-injuries" placeholder="e.g. lower back issues, dodgy left knee..."></textarea></div>
-    <div class="intro-field"><label>Any medical conditions George should know about?</label><textarea id="i-medical" placeholder="e.g. high blood pressure, thyroid issues..."></textarea></div>
-    <div class="intro-field"><label>Anything else you want George to know?</label><textarea id="i-notes" placeholder="Previous coaches, diet history, lifestyle, work schedule..."></textarea></div>
+    <div class="intro-field"><label>Current medical conditions</label><textarea id="i-medical" placeholder="e.g. high blood pressure, thyroid issues..."></textarea></div>
+    <div class="intro-field"><label>Past medical conditions</label><textarea id="i-medical-past" placeholder="e.g. previous surgeries, historical conditions..."></textarea></div>
+    <div class="intro-field"><label>Past anabolic experience</label><textarea id="i-anabolic-history" placeholder="e.g. previous cycles, compounds used, PCT history, how long ago..."></textarea></div>
+    <div class="intro-field"><label>Supplements used daily (wanting to continue)</label><textarea id="i-supplements" placeholder="e.g. creatine 5g, vitamin D 4000IU, omega-3, magnesium..."></textarea></div>
   </div>
 
-  <button class="submit-btn" onclick="submitIntro()" style="margin-top:16px;">Send to George &amp; start check-ins</button>
+  <div class="intro-card">
+    <div class="intro-section-title">Current wellbeing</div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px;">Rate how you feel right now, before starting the programme.</p>
+    <div class="intro-field">
+      <label>Energy levels</label>
+      <div class="rating-row" id="r-energy"></div>
+    </div>
+    <div class="intro-field">
+      <label>Motivation</label>
+      <div class="rating-row" id="r-motivation"></div>
+    </div>
+    <div class="intro-field">
+      <label>Sleep quality</label>
+      <div class="rating-row" id="r-sleep-quality"></div>
+    </div>
+  </div>
+
+  <div class="intro-card">
+    <div class="intro-section-title">Upload documents <span style="font-size:10px;color:var(--text3);text-transform:none;font-weight:400;letter-spacing:0;">— optional</span></div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:12px;">Blood tests, DEXA scans, or any other relevant documents. PDF or images only, max 10MB each.</p>
+    <div id="upload-area" style="border:0.5px dashed var(--border2);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;background:var(--bg2);" onclick="document.getElementById('file-input').click()">
+      <div style="font-size:24px;margin-bottom:6px;">📎</div>
+      <div style="font-size:13px;color:var(--text2);">Tap to select files</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px;">PDF, JPG, PNG — up to 10MB each</div>
+    </div>
+    <input type="file" id="file-input" multiple accept=".pdf,.jpg,.jpeg,.png" style="display:none;"/>
+    <div id="file-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+  </div>
+
+  <div class="intro-card">
+    <div class="intro-section-title">Anything else</div>
+    <div class="intro-field"><label>Anything else you want George to know?</label><textarea id="i-notes" placeholder="Previous coaches, diet history, lifestyle, work schedule, stress levels..."></textarea></div>
+  </div>
+
+  <button class="submit-btn" id="intro-submit-btn" style="margin-top:16px;">Send to George &amp; start check-ins</button>
 </div>
 
 <!-- Main check-in form -->
@@ -304,6 +348,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAGjyhdituUusNdhRkfOPSY157niIzMt5c",
@@ -316,7 +361,43 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 const CLIENT_ID = 'jason';
+
+var introRatings = {energy:null, motivation:null, sleepQuality:null};
+
+function buildRatingRow(containerId, ratingKey, labels){
+  var container = document.getElementById(containerId);
+  if(!container) return;
+  labels.forEach(function(lbl, i){
+    var v = i+1;
+    var btn = document.createElement('button');
+    btn.className = 'rating-btn';
+    btn.type = 'button';
+    btn.innerHTML = v + '<span class="rating-lbl">'+lbl+'</span>';
+    btn.addEventListener('click', function(){
+      introRatings[ratingKey] = v;
+      container.querySelectorAll('.rating-btn').forEach(function(b){b.classList.remove('on');});
+      btn.classList.add('on');
+    });
+    container.appendChild(btn);
+  });
+}
+
+function buildFileList(){
+  var input = document.getElementById('file-input');
+  var listEl = document.getElementById('file-list');
+  if(!input||!listEl) return;
+  input.addEventListener('change', function(){
+    listEl.innerHTML = '';
+    Array.from(input.files).forEach(function(f){
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg2);border-radius:var(--radius);font-size:13px;';
+      row.innerHTML = '<span style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">📎 '+f.name+'</span><span style="color:var(--text3);font-size:11px;margin-left:8px;flex-shrink:0;">'+(f.size>1024*1024?(f.size/1024/1024).toFixed(1)+'MB':(f.size/1024).toFixed(0)+'KB')+'</span>';
+      listEl.appendChild(row);
+    });
+  });
+}
 
 var mood = null;
 var anabolicOptions = ['Testosterone Enanthate','Testosterone Cypionate','Testosterone Propionate','Anavar (Oxandrolone)','Primobolan (Methenolone)','Masteron (Drostanolone)','Trenbolone Acetate','Trenbolone Enanthate'];
@@ -438,6 +519,10 @@ window.setMood=setMood;
 window.addCompound=addCompound;
 window.anabolicOptions=anabolicOptions;
 window.peptideOptions=peptideOptions;
+buildRatingRow('r-energy', 'energy', ['very low','low','ok','good','great']);
+buildRatingRow('r-motivation', 'motivation', ['very low','low','ok','good','great']);
+buildRatingRow('r-sleep-quality', 'sleepQuality', ['very poor','poor','ok','good','great']);
+buildFileList();
 document.getElementById('btn-add-anabolic').addEventListener('click',function(){addCompound('anabolics-list',anabolicOptions);});
 document.getElementById('btn-add-peptide').addEventListener('click',function(){addCompound('peptides-list',peptideOptions);});
 window.validateWeight=validateWeight;window.validateHR=validateHR;window.validateSleep=validateSleep;
@@ -446,21 +531,48 @@ window.validateBP=validateBP;window.validateGlucose=validateGlucose;window.valid
 window.submitIntro=async function(){
   var name=document.getElementById('i-name').value.trim();
   if(!name){alert('Please enter your name.');return;}
+  var btn=document.getElementById('intro-submit-btn');
+  btn.disabled=true;btn.textContent='Saving...';
   showOverlay();
   try{
+    var uploadedFiles=[];
+    var files=document.getElementById('file-input').files;
+    if(files&&files.length>0){
+      btn.textContent='Uploading files...';
+      for(var fi=0;fi<files.length;fi++){
+        var file=files[fi];
+        if(file.size>10*1024*1024){alert(file.name+' is over 10MB — skipping.');continue;}
+        var path='clients/'+CLIENT_ID+'/uploads/'+Date.now()+'_'+file.name;
+        var storageRef=ref(storage,path);
+        await uploadBytes(storageRef,file);
+        var url=await getDownloadURL(storageRef);
+        uploadedFiles.push({name:file.name,url:url,size:file.size,uploadedAt:new Date().toISOString()});
+      }
+    }
+    btn.textContent='Saving profile...';
     var profile={
       name:name,
       age:document.getElementById('i-age').value||null,
       height:document.getElementById('i-height').value||null,
       startWeight:document.getElementById('i-start-weight').value||null,
+      bf:document.getElementById('i-bf').value||null,
       goal:document.getElementById('i-goal').value||null,
       targetWeight:document.getElementById('i-target').value||null,
       experience:document.getElementById('i-experience').value||null,
       trainingDays:document.getElementById('i-days').value||null,
       trainingStyle:document.getElementById('i-style').value||null,
+      currentSplit:document.getElementById('i-split').value||null,
+      cardio:document.getElementById('i-cardio').value||null,
       injuries:document.getElementById('i-injuries').value||null,
       medical:document.getElementById('i-medical').value||null,
+      medicalPast:document.getElementById('i-medical-past').value||null,
+      anabolicHistory:document.getElementById('i-anabolic-history').value||null,
+      supplements:document.getElementById('i-supplements').value||null,
+      energyLevel:introRatings.energy||null,
+      motivation:introRatings.motivation||null,
+      sleepQuality:introRatings.sleepQuality||null,
       notes:document.getElementById('i-notes').value||null,
+      uploadedFiles:uploadedFiles,
       completedAt:new Date().toISOString()
     };
     await setDoc(doc(db,'clients',CLIENT_ID,'profile','info'),profile);
@@ -472,6 +584,7 @@ window.submitIntro=async function(){
     loadEntry();
   }catch(e){
     hideOverlay();
+    btn.disabled=false;btn.textContent='Send to George & start check-ins';
     alert('Could not save — please check your connection and try again.');
     console.error(e);
   }
