@@ -509,9 +509,9 @@ async function renderPhotos(all){
   var el=document.getElementById('photos-grid');
   if(!el)return;
   el.innerHTML='<div class="no-data">Loading photos...</div>';
-
-  // First collect any URLs stored in Firestore entries
   var photos=[];
+
+  // Pull URLs saved in Firestore checkin documents
   all.slice().reverse().forEach(function(l){
     if(l.photos&&l.photos.length){
       l.photos.forEach(function(p){
@@ -520,34 +520,31 @@ async function renderPhotos(all){
     }
   });
 
-  // Also fetch directly from Storage in case URLs weren't saved to Firestore
-  try{
-    var storageRef=ref(storage,'clients/'+CLIENT_ID()+'/photos');
-    var result=await listAll(storageRef);
-    var storageUrls=await Promise.all(result.items.map(async function(item){
-      var url=await getDownloadURL(item);
-      // Extract date from filename: clients/jason/photos/2026-06-07_timestamp_name.jpg
-      var nameParts=item.name.split('_');
-      var date=nameParts[0]||'';
-      return{url:url,date:date,name:item.name};
-    }));
-    // Merge: add any Storage photos not already in Firestore list
-    var existingUrls=photos.map(function(p){return p.url;});
-    storageUrls.forEach(function(sp){
-      if(!existingUrls.includes(sp.url)) photos.push({url:sp.url,date:sp.date});
-    });
-  }catch(e){
-    console.warn('Could not list Storage photos:',e.message);
+  // Fallback: scan Storage folder directly using listAll
+  if(!photos.length){
+    try{
+      var folderRef=ref(storage,'clients/'+CLIENT_ID()+'/photos');
+      var result=await listAll(folderRef);
+      var items=result.items.slice().sort(function(a,b){return b.name.localeCompare(a.name);});
+      for(var i=0;i<items.length;i++){
+        try{
+          var url=await getDownloadURL(items[i]);
+          var parts=items[i].name.split('_');
+          var date=parts.length>=2?parts[0]:'';
+          photos.push({url:url,date:date});
+        }catch(e2){}
+      }
+    }catch(e){
+      console.warn('Storage listAll failed:',e.message);
+    }
   }
 
-  // Sort newest first
   photos.sort(function(a,b){return b.date.localeCompare(a.date);});
-
   if(!photos.length){el.innerHTML='<div class="no-data">No photos yet</div>';return;}
   el.innerHTML='<div class="photos-grid">'+photos.slice(0,24).map(function(p){
     var ds='';
     if(p.date){try{var d=new Date(p.date+'T00:00:00');ds=d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});}catch(e){ds=p.date;}}
-    return'<div class="photo-item"><a href="'+p.url+'" target="_blank"><img src="'+p.url+'" alt="Physique photo '+ds+'" loading="lazy"/></a>'+(ds?'<div class="photo-item-date">'+ds+'</div>':'')+'</div>';
+    return'<div class="photo-item"><a href="'+p.url+'" target="_blank"><img src="'+p.url+'" alt="Physique '+ds+'" loading="lazy"/></a>'+(ds?'<div class="photo-item-date">'+ds+'</div>':'')+'</div>';
   }).join('')+'</div>';
 }
 
