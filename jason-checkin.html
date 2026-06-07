@@ -130,7 +130,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
         Blood pressure <span class="opt-label" style="font-size:11px;text-transform:none;letter-spacing:0;font-weight:400;">— optional</span>
       </div>
-      <p class="optional-note" style="margin-bottom:8px;">Only fill this in if you have a BP monitor at home — no need to guess.</p>
+      <p class="optional-note" style="margin-bottom:8px;">Try to take this a few times a week — morning, before training, while relaxed.</p>
       <div class="two-col">
         <div class="field"><label>Systolic (mmHg)</label><input type="number" id="f-bps" placeholder="e.g. 120" inputmode="numeric" /></div>
         <div class="field"><label>Diastolic (mmHg)</label><input type="number" id="f-bpd" placeholder="e.g. 80" inputmode="numeric" /></div>
@@ -195,7 +195,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
       Peptides used today <span class="opt-label" style="font-size:11px;text-transform:none;letter-spacing:0;font-weight:400;">— leave blank if none</span>
     </div>
-    <div class="compound-header"><span>Peptide</span><span>Dose (mcg)</span><span></span></div>
+    <div class="compound-header"><span>Peptide</span><span>Dose (mg)</span><span></span></div>
     <div id="peptides-list"></div>
     <button class="add-btn" onclick="addCompound('peptides-list', peptideOptions)">+ Add peptide</button>
   </div>
@@ -233,8 +233,8 @@
   <div class="tick">
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27500a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
   </div>
-  <h2>Check-in saved!</h2>
-  <p id="success-msg">Your coach can see this entry.</p>
+  <h2>Logged with George</h2>
+  <p id="success-msg">Your check-in has been recorded and logged with George.</p>
   <button class="log-again-btn" onclick="backToForm()">&#8592; Back to form</button>
 </div>
 
@@ -259,8 +259,8 @@ function addCompound(listId, options, name, dose){
   var row = document.createElement('div');
   row.className = 'compound-row';
   var sel = document.createElement('select');
+  var blank = document.createElement('option'); blank.value=''; blank.textContent='— select —'; sel.appendChild(blank);
   options.forEach(function(o){ var opt=document.createElement('option'); opt.value=o; opt.textContent=o; sel.appendChild(opt); });
-  var blank = document.createElement('option'); blank.value=''; blank.textContent='— select —'; sel.insertBefore(blank, sel.firstChild);
   if(name) sel.value = name;
   var inp = document.createElement('input');
   inp.type='number'; inp.placeholder='e.g. 500'; inp.inputMode='numeric';
@@ -369,7 +369,7 @@ function submitEntry(){
   if(!idx.includes(date)){ idx.push(date); idx.sort(function(a,b){ return b.localeCompare(a); }); }
   setStorage('checkin_index', idx);
   var today=todayStr();
-  var msg=date===today?'Your coach can see today\'s data. Good work.':'Entry for '+formatDate(date)+' has been saved.';
+  var msg=date===today?'Your check-in has been recorded and logged with George.':'Your check-in for '+formatDate(date)+' has been recorded and logged with George.';
   document.getElementById('success-msg').textContent=msg;
   document.getElementById('form-view').style.display='none';
   document.getElementById('success-view').style.display='block';
