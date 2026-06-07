@@ -96,6 +96,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="topbar-title">Jason — coach dashboard</div>
       <div class="topbar-sub" id="last-updated">Loading...</div>
     </div>
+    <div style="margin-left:16px;padding-left:16px;border-left:0.5px solid var(--border);display:flex;flex-direction:column;gap:2px;">
+      <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;">7-day avg weight</div>
+      <div style="display:flex;align-items:baseline;gap:6px;">
+        <span style="font-size:20px;font-weight:500;color:var(--text);" id="rolling-weight">—</span>
+        <span style="font-size:11px;" id="rolling-delta"></span>
+      </div>
+    </div>
   </div>
   <div class="topbar-right">
     <button class="tbtn tbtn-sm" onclick="loadDemoData()">Load demo data</button>
@@ -314,6 +321,7 @@ function render(){
     }
 
     renderStats(logs);
+    renderRollingWeight();
     renderWeight(logs);
     renderSteps(logs);
     renderCals(logs);
@@ -324,12 +332,29 @@ function render(){
     renderWater(logs);
     renderMood(logs);
     renderStreak(all);
-    renderCompounds(all);
+    renderCompounds(logs);
     renderNotes(all);
     renderTable(logs);
   } catch(e){
     console.error('Render error:',e);
     document.getElementById('last-updated').textContent='Error loading data — check console';
+  }
+}
+
+function renderRollingWeight(){
+  var all=loadLogs(9999);
+  var ws=all.filter(function(l){return l.weight;});
+  if(ws.length<2){document.getElementById('rolling-weight').textContent='—';document.getElementById('rolling-delta').textContent='';return;}
+  var last7=ws.slice(-7);
+  var prev7=ws.slice(-14,-7);
+  var avg7=last7.reduce(function(a,l){return a+l.weight;},0)/last7.length;
+  var avgPrev=prev7.length?prev7.reduce(function(a,l){return a+l.weight;},0)/prev7.length:null;
+  document.getElementById('rolling-weight').textContent=avg7.toFixed(2)+' kg';
+  if(avgPrev){
+    var delta=avg7-avgPrev;
+    var el=document.getElementById('rolling-delta');
+    el.textContent=(delta>0?'+':'')+delta.toFixed(2)+' kg vs prev 7d';
+    el.style.color=delta<0?'#639922':delta>0?'#E24B4A':'#9e9e9a';
   }
 }
 
@@ -382,10 +407,35 @@ function renderSteps(logs){
 function renderCals(logs){
   var pts=logs.filter(function(l){return l.cals;});
   if(!pts.length){noData('c-cals','No calories logged');return;}
+  var labels=pts.map(function(l){return fmtDate(l.date);});
+  function kcal(l){
+    var p=(l.protein||0)*4;
+    var c=(l.carbs||0)*4;
+    var f=(l.fats||0)*9;
+    var total=p+c+f;
+    if(!total)return{p:l.cals,c:0,f:0};
+    var scale=l.cals/total;
+    return{p:Math.round(p*scale),c:Math.round(c*scale),f:Math.round(f*scale)};
+  }
+  var hasMacros=pts.some(function(l){return l.protein||l.carbs||l.fats;});
+  if(!hasMacros){
+    mkChart('c-cals',{type:'bar',data:{
+      labels:labels,
+      datasets:[{label:'Calories',data:pts.map(function(l){return l.cals;}),backgroundColor:'rgba(55,138,221,0.7)',borderRadius:3,borderSkipped:false}]
+    },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis()}}});
+    return;
+  }
   mkChart('c-cals',{type:'bar',data:{
-    labels:pts.map(function(l){return fmtDate(l.date);}),
-    datasets:[{label:'Calories',data:pts.map(function(l){return l.cals;}),backgroundColor:'rgba(55,138,221,0.7)',borderRadius:3,borderSkipped:false}]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:noLegend(),scales:{x:xAxis(),y:yAxis()}}});
+    labels:labels,
+    datasets:[
+      {label:'Protein',data:pts.map(function(l){return kcal(l).p;}),backgroundColor:'#378ADD',stack:'s'},
+      {label:'Carbs',data:pts.map(function(l){return kcal(l).c;}),backgroundColor:'#1D9E75',stack:'s'},
+      {label:'Fat',data:pts.map(function(l){return kcal(l).f;}),backgroundColor:'#BA7517',stack:'s'}
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',labels:{color:tc(),font:{size:11},padding:10,boxWidth:10,boxHeight:10}},
+      tooltip:{callbacks:{footer:function(items){var t=items.reduce(function(a,i){return a+i.parsed.y;},0);return 'Total: '+t+' kcal';}}}},
+    scales:{x:xAxis(),y:yAxis(function(v){return v+' kcal';})}}});
 }
 
 function renderMacros(logs){
@@ -478,24 +528,30 @@ function renderStreak(all){
   }).join('');
 }
 
-function renderCompounds(all){
-  var cm={},pm={};
-  all.forEach(function(l){
-    if(l.anabolics)l.anabolics.forEach(function(c){if(c.name)cm[c.name]=c.dose;});
-    if(l.peptides)l.peptides.forEach(function(c){if(c.name)pm[c.name]=c.dose;});
-  });
-  var ck=Object.keys(cm),pk=Object.keys(pm);
+function renderCompounds(logs){
   var el=document.getElementById('compounds-display');
-  if(!ck.length&&!pk.length){el.innerHTML='<div class="no-data">No compounds logged</div>';return;}
-  var h='';
-  if(ck.length){
-    h+='<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;">Anabolics</div>';
-    h+='<div class="compounds-grid" style="margin-bottom:12px;">'+ck.map(function(k){return '<div class="compound-pill"><div class="compound-name">'+k+'</div><div class="compound-dose">'+cm[k]+' mg</div></div>';}).join('')+'</div>';
-  }
-  if(pk.length){
-    h+='<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;">Peptides</div>';
-    h+='<div class="compounds-grid">'+pk.map(function(k){return '<div class="compound-pill"><div class="compound-name">'+k+'</div><div class="compound-dose">'+pm[k]+' mg</div></div>';}).join('')+'</div>';
-  }
+  var rows=logs.filter(function(l){
+    return (l.anabolics&&l.anabolics.length)||(l.peptides&&l.peptides.length);
+  }).slice().reverse();
+  if(!rows.length){el.innerHTML='<div class="no-data">No compounds logged in this period</div>';return;}
+  var h='<div style="overflow-x:auto;"><table class="log-table" style="min-width:500px;">';
+  h+='<thead><tr><th style="width:80px">Date</th><th style="width:100px">Type</th><th>Compound</th><th style="width:80px">Dose (mg)</th></tr></thead><tbody>';
+  rows.forEach(function(l){
+    var d=new Date(l.date+'T00:00:00');
+    var ds=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+    var items=[];
+    if(l.anabolics)l.anabolics.forEach(function(c){if(c.name)items.push({type:'Anabolic',name:c.name,dose:c.dose,cls:'badge-red'});});
+    if(l.peptides)l.peptides.forEach(function(c){if(c.name)items.push({type:'Peptide',name:c.name,dose:c.dose,cls:'badge-blue'});});
+    items.forEach(function(it,i){
+      h+='<tr>';
+      h+='<td>'+(i===0?ds:'')+'</td>';
+      h+='<td><span class="badge '+it.cls+'">'+it.type+'</span></td>';
+      h+='<td style="font-weight:500;">'+it.name+'</td>';
+      h+='<td>'+it.dose+' mg</td>';
+      h+='</tr>';
+    });
+  });
+  h+='</tbody></table></div>';
   el.innerHTML=h;
 }
 
