@@ -103,7 +103,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 
   <div class="topbar-right">
-    <div id="client-switcher" style="display:flex;gap:6px;flex-wrap:wrap;margin-right:8px;padding-right:8px;border-right:0.5px solid var(--border2);"></div>
+    <select id="client-switcher" style="padding:5px 10px;border:0.5px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text);font-family:inherit;font-size:12px;cursor:pointer;margin-right:8px;"></select>
     <button class="tbtn active" id="btn7" onclick="setRange(7,'btn7')">7d</button>
     <button class="tbtn" id="btn14" onclick="setRange(14,'btn14')">14d</button>
     <button class="tbtn" id="btn28" onclick="setRange(28,'btn28')">28d</button>
@@ -570,21 +570,20 @@ function buildClientSwitcher(){
   var el=document.getElementById('client-switcher');
   if(!el)return;
   el.innerHTML=CLIENTS.map(function(c){
-    var active=c.id===activeClientId;
-    return '<button id="cbtn-'+c.id+'" onclick="window.switchClient(\"'+c.id+'\")" style="padding:5px 12px;border:0.5px solid var(--border2);border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:'+(active?'var(--text)':'none')+';color:'+(active?'var(--bg)':'var(--text2)')+';">'+c.name+'</button>';
+    return '<option value="'+c.id+'"'+(c.id===activeClientId?' selected':'')+'>'+c.name+'</option>';
   }).join('');
+  el.onchange=function(){
+    activeClientId=el.value;
+    var c=getClient();
+    document.getElementById('topbar-avatar').textContent=c.initials;
+    document.getElementById('topbar-name').textContent=c.name+' — coach dashboard';
+    allLogs=[];
+    selectedCompound=null;
+    init();
+  };
 }
 
-window.switchClient=function(id){
-  activeClientId=id;
-  var c=getClient();
-  document.getElementById('topbar-avatar').textContent=c.initials;
-  document.getElementById('topbar-name').textContent=c.name+' — coach dashboard';
-  buildClientSwitcher();
-  allLogs=[];
-  selectedCompound=null;
-  init();
-}
+
 
 var refreshInterval=null;
 
