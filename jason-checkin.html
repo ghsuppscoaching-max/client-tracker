@@ -542,11 +542,21 @@ window.submitIntro=async function(){
       for(var fi=0;fi<files.length;fi++){
         var file=files[fi];
         if(file.size>10*1024*1024){alert(file.name+' is over 10MB — skipping.');continue;}
-        var path='clients/'+CLIENT_ID+'/uploads/'+Date.now()+'_'+file.name;
-        var storageRef=ref(storage,path);
-        await uploadBytes(storageRef,file);
-        var url=await getDownloadURL(storageRef);
-        uploadedFiles.push({name:file.name,url:url,size:file.size,uploadedAt:new Date().toISOString()});
+        try{
+          var path='clients/'+CLIENT_ID+'/uploads/'+Date.now()+'_'+file.name;
+          var storageRef=ref(storage,path);
+          await uploadBytes(storageRef,file);
+          var url=await getDownloadURL(storageRef);
+          uploadedFiles.push({name:file.name,url:url,size:file.size,uploadedAt:new Date().toISOString()});
+        }catch(uploadErr){
+          console.error('File upload failed:',uploadErr);
+          var proceed=confirm('Could not upload '+file.name+' ('+uploadErr.message+'). Continue saving profile without this file?');
+          if(!proceed){
+            hideOverlay();
+            btn.disabled=false;btn.textContent='Send to George & start check-ins';
+            return;
+          }
+        }
       }
     }
     btn.textContent='Saving profile...';
