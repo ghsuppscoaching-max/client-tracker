@@ -101,8 +101,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="topbar-sub" id="last-updated">Loading...</div>
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;" id="client-switcher"></div>
+
   <div class="topbar-right">
+    <div id="client-switcher" style="display:flex;gap:6px;flex-wrap:wrap;margin-right:8px;padding-right:8px;border-right:0.5px solid var(--border2);"></div>
     <button class="tbtn active" id="btn7" onclick="setRange(7,'btn7')">7d</button>
     <button class="tbtn" id="btn14" onclick="setRange(14,'btn14')">14d</button>
     <button class="tbtn" id="btn28" onclick="setRange(28,'btn28')">28d</button>
@@ -273,14 +274,11 @@ function getLogs(range){
 }
 
 async function loadAllLogs(){
-  try{
-    var q=query(collection(db,'clients',CLIENT_ID(),'checkins'),orderBy('date','asc'));
-    var snap=await getDocs(q);
-    allLogs=[];
-    snap.forEach(function(d){allLogs.push(d.data());});
-    allLogs.sort(function(a,b){return a.date.localeCompare(b.date);});
-    return true;
-  }catch(e){console.error('Load logs error',e);return false;}
+  var q=query(collection(db,'clients',CLIENT_ID(),'checkins'),orderBy('date','asc'));
+  var snap=await getDocs(q);
+  allLogs=[];
+  snap.forEach(function(d){allLogs.push(d.data());});
+  allLogs.sort(function(a,b){return a.date.localeCompare(b.date);});
 }
 
 async function loadProfile(){
@@ -573,7 +571,7 @@ function buildClientSwitcher(){
   if(!el)return;
   el.innerHTML=CLIENTS.map(function(c){
     var active=c.id===activeClientId;
-    return '<button id="cbtn-'+c.id+'" onclick="window.switchClient(''+c.id+'')" style="padding:5px 12px;border:0.5px solid var(--border2);border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:'+(active?'var(--text)':'none')+';color:'+(active?'var(--bg)':'var(--text2)')+';">'+c.name+'</button>';
+    return '<button id="cbtn-'+c.id+'" onclick="window.switchClient(\"'+c.id+'\")" style="padding:5px 12px;border:0.5px solid var(--border2);border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;background:'+(active?'var(--text)':'none')+';color:'+(active?'var(--bg)':'var(--text2)')+';">'+c.name+'</button>';
   }).join('');
 }
 
@@ -588,16 +586,23 @@ window.switchClient=function(id){
   init();
 }
 
+var refreshInterval=null;
+
 async function init(){
   var c=getClient();
   document.getElementById('topbar-avatar').textContent=c.initials;
   document.getElementById('topbar-name').textContent=c.name+' — coach dashboard';
   buildClientSwitcher();
   document.getElementById('last-updated').textContent='Loading data...';
-  var ok=await loadAllLogs();
-  if(!ok){document.getElementById('last-updated').textContent='Error loading data — check connection';return;}
-  render();
-  setInterval(async function(){await loadAllLogs();render();},30000);
+  if(refreshInterval){clearInterval(refreshInterval);refreshInterval=null;}
+  try{
+    await loadAllLogs();
+    render();
+    refreshInterval=setInterval(async function(){await loadAllLogs();render();},30000);
+  }catch(e){
+    console.error('Init error:',e);
+    document.getElementById('last-updated').textContent='Error loading — '+e.message;
+  }
 }
 
 if(typeof Chart!=='undefined'){init();}
