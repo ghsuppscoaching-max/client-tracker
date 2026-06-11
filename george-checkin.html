@@ -78,6 +78,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .success-screen p{font-size:14px;color:var(--text2);line-height:1.6;}
 .log-again-btn{margin-top:20px;padding:12px 24px;border:0.5px solid var(--border2);border-radius:var(--radius);background:none;font-size:14px;color:var(--text2);cursor:pointer;font-family:inherit;}
 .divider{height:.5px;background:var(--border);margin:12px 0;}
+.unit-toggle{display:flex;gap:0;border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;flex-shrink:0;}
+.unit-btn{padding:6px 12px;border:none;background:none;font-size:13px;color:var(--text2);cursor:pointer;font-family:inherit;}
+.unit-btn.active{background:var(--text);color:var(--bg);font-weight:500;}
 .photo-upload-area{border:0.5px dashed var(--border2);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;background:var(--bg2);transition:background .15s;}
 .photo-upload-area:active{background:var(--bg3);}
 .photo-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
@@ -116,8 +119,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- Intro screen (shown first time only) -->
 <div id="intro-screen" class="intro-screen" style="display:none;">
   <div class="intro-hero">
-    <h1>My profile</h1>
-    <p>Set up your own tracking profile. Fill this in once and it won't appear again.</p>
+    <h1>Welcome, George</h1>
+    <p>Before your first check-in, George needs a few details. This only takes a couple of minutes and you won't see it again.</p>
   </div>
 
   <div class="intro-card">
@@ -219,7 +222,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="intro-field"><label>Anything else you want George to know?</label><textarea id="i-notes" placeholder="Previous coaches, diet history, lifestyle, work schedule, stress levels..."></textarea></div>
   </div>
 
-  <button class="submit-btn" id="intro-submit-btn" style="margin-top:16px;">Save profile &amp; start logging</button>
+  <button class="submit-btn" id="intro-submit-btn" style="margin-top:16px;">Send to George &amp; start check-ins</button>
 </div>
 
 <!-- Main check-in form -->
@@ -250,9 +253,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div id="form-fields" style="display:none;">
 
     <div class="card">
-      <div class="section-title"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>Body</div>
+      <div class="section-title" style="justify-content:space-between;">
+        <span style="display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" stroke-width="2" fill="none" style="width:14px;height:14px;stroke:currentColor;"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>Body</span>
+        <div class="unit-toggle">
+          <button class="unit-btn active" id="unit-kg" type="button">kg</button>
+          <button class="unit-btn" id="unit-lbs" type="button">lbs</button>
+        </div>
+      </div>
       <div class="field">
-        <label>Weight (kg)</label>
+        <label id="weight-label">Weight (kg)</label>
         <input type="number" id="f-weight" placeholder="e.g. 89.2" step="0.1" inputmode="decimal" oninput="validateWeight()"/>
         <span class="field-hint" id="weight-hint"></span>
       </div>
@@ -353,7 +362,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="field"><textarea id="f-notes" placeholder="How did training go? Any symptoms, energy levels, joint pain, hunger, mood changes..."></textarea></div>
     </div>
 
-    <button class="submit-btn" id="submit-btn">Log today</button>
+    <button class="submit-btn" id="submit-btn">Send to coach</button>
   </div>
 </div>
 
@@ -453,6 +462,34 @@ function buildFileList(){
 }
 
 var mood = null;
+var weightUnit = localStorage.getItem('weightUnit_'+CLIENT_ID) || 'kg';
+
+function initUnitToggle(){
+  var kgBtn = document.getElementById('unit-kg');
+  var lbsBtn = document.getElementById('unit-lbs');
+  if(!kgBtn||!lbsBtn) return;
+  function setUnit(unit){
+    weightUnit = unit;
+    localStorage.setItem('weightUnit_'+CLIENT_ID, unit);
+    kgBtn.classList.toggle('active', unit==='kg');
+    lbsBtn.classList.toggle('active', unit==='lbs');
+    document.getElementById('weight-label').textContent = unit==='kg' ? 'Weight (kg)' : 'Weight (lbs)';
+    document.getElementById('f-weight').placeholder = unit==='kg' ? 'e.g. 89.2' : 'e.g. 196.7';
+    // Convert existing value if there is one
+    var current = parseFloat(document.getElementById('f-weight').value);
+    if(current){
+      if(unit==='lbs') document.getElementById('f-weight').value = Math.round(current*2.20462*10)/10;
+      else document.getElementById('f-weight').value = Math.round(current/2.20462*10)/10;
+    }
+  }
+  kgBtn.addEventListener('click', function(){ if(weightUnit!=='kg') setUnit('kg'); });
+  lbsBtn.addEventListener('click', function(){ if(weightUnit!=='lbs') setUnit('lbs'); });
+  // Apply saved preference on load
+  setUnit(weightUnit);
+}
+
+function toKg(val){ return weightUnit==='lbs' ? Math.round(val/2.20462*100)/100 : val; }
+function fromKg(val){ return weightUnit==='lbs' ? Math.round(val*2.20462*10)/10 : val; }
 var anabolicOptions = ['Testosterone Enanthate','Testosterone Cypionate','Testosterone Propionate','Anavar (Oxandrolone)','Primobolan (Methenolone)','Masteron (Drostanolone)','Trenbolone Acetate','Trenbolone Enanthate'];
 var peptideOptions = ['MOTS-C','SS-31','Klow (Klotho)','BPC-157','TB-500','CJC-1295','Ipamorelin','Sermorelin','Epithalon'];
 
@@ -515,7 +552,7 @@ function getCompounds(listId){
 function clearCompounds(listId){document.getElementById(listId).innerHTML='';}
 
 function populateForm(e){
-  if(e.weight)document.getElementById('f-weight').value=e.weight;
+  if(e.weight)document.getElementById('f-weight').value=fromKg(e.weight);
   if(e.hr)document.getElementById('f-hr').value=e.hr;
   if(e.sleep)document.getElementById('f-sleep').value=e.sleep;
   if(e.bps)document.getElementById('f-bps').value=e.bps;
@@ -561,7 +598,7 @@ async function loadEntry(){
     }
   }catch(e){console.error('Load error',e);}
   document.getElementById('form-fields').style.display='block';
-  document.getElementById('submit-btn').textContent=date===today?'Log today':'Save entry for '+formatDate(date);
+  document.getElementById('submit-btn').textContent=date===today?'Send to coach':'Save entry for '+formatDate(date);
 }
 
 window.loadEntry=loadEntry;
@@ -572,6 +609,7 @@ window.setMood=setMood;
 window.addCompound=addCompound;
 window.anabolicOptions=anabolicOptions;
 window.peptideOptions=peptideOptions;
+initUnitToggle();
 buildRatingRow('r-energy', 'energy', ['very low','low','ok','good','great']);
 buildRatingRow('r-motivation', 'motivation', ['very low','low','ok','good','great']);
 buildRatingRow('r-sleep-quality', 'sleepQuality', ['very poor','poor','ok','good','great']);
@@ -723,7 +761,7 @@ window.submitEntry=async function(){
       }catch(e){
         console.error('Photo upload failed',e);
         hideOverlay();
-        btn.disabled=false;btn.textContent='Log today';
+        btn.disabled=false;btn.textContent='Send to coach';
         alert('Photo upload failed: '+e.message+'\n\nPlease check Firebase Storage rules are set to allow read/write.');
         return;
       }
@@ -732,7 +770,7 @@ window.submitEntry=async function(){
   btn.textContent='Saving...';
   var entry={
     date:date,ts:new Date().toISOString(),
-    weight:parseFloat(document.getElementById('f-weight').value)||null,
+    weight:document.getElementById('f-weight').value?toKg(parseFloat(document.getElementById('f-weight').value)):null,
     hr:parseInt(document.getElementById('f-hr').value)||null,
     sleep:parseFloat(document.getElementById('f-sleep').value)||null,
     bps:parseInt(document.getElementById('f-bps').value)||null,
@@ -753,11 +791,11 @@ window.submitEntry=async function(){
   };
   try{
     await setDoc(doc(db,'clients',CLIENT_ID,'checkins',date),entry);
-    // No email notification for own tracking
+    // No self-notification — don't await
     var today=todayStr();
     document.getElementById('success-msg').textContent=date===today
       ?'Your check-in has been recorded.'
-      :'Entry for '+formatDate(date)+' has been recorded.';
+      :'Your check-in for '+formatDate(date)+' has been recorded.';
     hideOverlay();
     selectedPhotos=[];
     renderPhotoPreview();
@@ -768,7 +806,7 @@ window.submitEntry=async function(){
     alert('Could not save — please check your connection and try again.');
     console.error(e);
   }
-  btn.disabled=false;btn.textContent='Log today';
+  btn.disabled=false;btn.textContent='Send to coach';
 }
 
 async function init(){
